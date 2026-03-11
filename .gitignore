@@ -1,0 +1,13 @@
+# IDE & Build
+work/.metadata/
+work/1_Cafe_kiosk/bin/
+work/1_Cafe_kiosk/lib/*.jar
+
+# Config & Secrets (Sensitive Information)
+work/1_Cafe_kiosk/resources/dbinfo.properties
+work/1_Cafe_kiosk/bin/dbinfo.properties
+
+# Editor specific
+.obsidian/
+work/1_Cafe_kiosk/resources/.obsidian/
+work/1_Cafe_kiosk/bin/.obsidian/
