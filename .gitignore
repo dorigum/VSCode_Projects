@@ -1,13 +1,14 @@
-# IDE & Build
-work/.metadata/
-work/1_Cafe_kiosk/bin/
-work/1_Cafe_kiosk/lib/*.jar
+# Eclipse/Java
+.metadata/
+.project
+.classpath
+.settings/
+bin/
+*.class
 
-# Config & Secrets (Sensitive Information)
-work/1_Cafe_kiosk/resources/dbinfo.properties
-work/1_Cafe_kiosk/bin/dbinfo.properties
+# Windows
+Thumbs.db
+desktop.ini
 
-# Editor specific
-.obsidian/
-work/1_Cafe_kiosk/resources/.obsidian/
-work/1_Cafe_kiosk/bin/.obsidian/
+# Logs
+*.log
