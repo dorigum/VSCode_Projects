@@ -77,12 +77,8 @@ public class AdminServiceImpl implements AdminService {
         return orderRepository.getAllOrders();
     }
 
-    public void cancelOrder(long orderId) {
-        if (orderRepository.cancelOrder(orderId)) {
-            System.out.println("주문이 취소되었습니다.");
-        } else {
-            System.out.println("취소 실패: 존재하지 않는 주문이거나 이미 취소된 주문입니다.");
-        }
+    public boolean cancelOrder(long orderId) {
+        return orderRepository.cancelOrder(orderId);
     }
 
     // --- 통계 기능 ---

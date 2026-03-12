@@ -1,11 +1,8 @@
 package view;
 
-import controller.AdminController;
 import model.Member;
 import repository.MenuRepository;
 import repository.MenuRepositoryImpl;
-import service.AdminService;
-import service.AdminServiceImpl;
 import service.MemberService;
 import service.MemberServiceImpl;
 import java.util.Scanner;
@@ -22,8 +19,6 @@ public class MainView {
 		}
 
 		MenuRepository menuRepository = new MenuRepositoryImpl();
-		AdminService adminService = new AdminServiceImpl(menuRepository);
-		AdminController adminController = new AdminController(adminService);
 		MemberService memberService = new MemberServiceImpl();
 
 		Scanner scanner = new Scanner(System.in, "UTF-8");
@@ -73,7 +68,7 @@ public class MainView {
 			} else if (mode == 2) {
 				System.out.println("준비 중인 서비스입니다.");
 			} else if (mode == 3) {
-				adminController.run();
+				AdminMenuView.adminMenu(scanner);
 			} else if (mode == 0) {
 				System.out.println("프로그램을 종료합니다.");
 				break;

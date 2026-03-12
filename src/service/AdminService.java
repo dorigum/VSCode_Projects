@@ -25,7 +25,7 @@ public interface AdminService {
 
     // --- 주문 관리 ---
     List<Order> getOrderList();
-    void cancelOrder(long orderId);
+    boolean cancelOrder(long orderId);
 
     // --- 통계 기능 ---
     void showStatistics();
