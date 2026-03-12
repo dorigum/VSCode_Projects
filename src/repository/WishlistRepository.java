@@ -1,5 +1,6 @@
 package repository;
 
+import exception.RepositoryException;
 import model.Wishlist;
 import java.sql.*;
 import java.util.ArrayList;
@@ -15,8 +16,7 @@ public class WishlistRepository {
 			pstmt.setLong(2, menuId);
 			return pstmt.executeUpdate() > 0;
 		} catch (SQLException e) {
-			System.err.println("찜 추가 실패: " + e.getMessage());
-			return false;
+			throw new RepositoryException("찜 추가 중 오류가 발생했습니다.", e);
 		}
 	}
 
@@ -32,10 +32,10 @@ public class WishlistRepository {
 							rs.getTimestamp("created_at")));
 				}
 			}
+			return list;
 		} catch (SQLException e) {
-			e.printStackTrace();
+			throw new RepositoryException("찜 조회 중 오류가 발생했습니다.", e);
 		}
-		return list;
 	}
 
 	// 찜 삭제
@@ -45,8 +45,7 @@ public class WishlistRepository {
 			pstmt.setLong(1, wishlistId);
 			return pstmt.executeUpdate() > 0;
 		} catch (SQLException e) {
-			e.printStackTrace();
-			return false;
+			throw new RepositoryException("찜 삭제 중 오류가 발생했습니다.", e);
 		}
 	}
 
@@ -60,9 +59,9 @@ public class WishlistRepository {
 				if (rs.next())
 					return rs.getInt(1) > 0;
 			}
+			return false;
 		} catch (SQLException e) {
-			e.printStackTrace();
+			throw new RepositoryException("찜 중복 확인 중 오류가 발생했습니다.", e);
 		}
-		return false;
 	}
 }

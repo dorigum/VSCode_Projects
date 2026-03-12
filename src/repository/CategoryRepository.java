@@ -5,9 +5,11 @@ import model.Category;
 import java.util.List;
 
 public interface CategoryRepository {
-    void addCategory(String name);
+    boolean addCategory(String name);
+
+    Category getCategoryById(int id);
 
     List<Category> getAllCategories();
 
-    void deleteCategory(int id);
+    boolean deleteCategory(int id);
 }

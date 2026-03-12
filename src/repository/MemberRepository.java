@@ -12,7 +12,7 @@ public interface MemberRepository {
 
 	List<Member> getAllMembers();
 
-	void deleteMember(long memberId);
+	boolean deleteMember(long memberId);
 
 	boolean isPhoneExists(String phone);
 

@@ -1,8 +1,11 @@
 package service;
 
+import exception.BusinessRuleException;
+import exception.NotFoundException;
+import exception.ValidationException;
+import model.Category;
 import model.Member;
 import model.Menu;
-import model.Category;
 import model.Order;
 import repository.CategoryRepository;
 import repository.CategoryRepositoryImpl;
@@ -12,6 +15,7 @@ import repository.MenuRepository;
 import repository.MenuRepositoryImpl;
 import repository.OrderRepository;
 import repository.OrderRepositoryImpl;
+
 import java.util.List;
 import java.util.Map;
 
@@ -20,6 +24,10 @@ public class AdminServiceImpl implements AdminService {
     private final MemberRepository memberRepository;
     private final CategoryRepository categoryRepository;
     private final OrderRepository orderRepository;
+
+    public AdminServiceImpl() {
+        this(new MenuRepositoryImpl(), new MemberRepositoryImpl(), new CategoryRepositoryImpl(), new OrderRepositoryImpl());
+    }
 
     public AdminServiceImpl(MenuRepository menuRepository) {
         this(menuRepository, new MemberRepositoryImpl(), new CategoryRepositoryImpl(), new OrderRepositoryImpl());
@@ -31,15 +39,45 @@ public class AdminServiceImpl implements AdminService {
         CategoryRepository categoryRepository,
         OrderRepository orderRepository
     ) {
+        if (menuRepository == null) {
+            throw new ValidationException("MenuRepository는 null일 수 없습니다.");
+        }
+        if (memberRepository == null) {
+            throw new ValidationException("MemberRepository는 null일 수 없습니다.");
+        }
+        if (categoryRepository == null) {
+            throw new ValidationException("CategoryRepository는 null일 수 없습니다.");
+        }
+        if (orderRepository == null) {
+            throw new ValidationException("OrderRepository는 null일 수 없습니다.");
+        }
+
         this.menuRepository = menuRepository;
         this.memberRepository = memberRepository;
         this.categoryRepository = categoryRepository;
         this.orderRepository = orderRepository;
     }
 
-    // --- 상품(메뉴) 관리 ---
     public void registerMenu(int categoryId, String name, int price, String description) {
-        menuRepository.addMenu(new Menu(categoryId, name, price, description));
+        if (name == null || name.trim().isEmpty()) {
+            throw new ValidationException("메뉴명은 비어 있을 수 없습니다.");
+        }
+        if (price <= 0) {
+            throw new ValidationException("가격은 1원 이상이어야 합니다.");
+        }
+        if (categoryId <= 0) {
+            throw new ValidationException("카테고리 ID는 1 이상이어야 합니다.");
+        }
+
+        Category category = categoryRepository.getCategoryById(categoryId);
+        if (category == null) {
+            throw new NotFoundException("존재하지 않는 카테고리입니다.");
+        }
+
+        Menu menu = new Menu(categoryId, name.trim(), price, description == null ? "" : description.trim());
+        if (!menuRepository.addMenu(menu)) {
+            throw new BusinessRuleException("메뉴 등록에 실패했습니다.");
+        }
     }
 
     public List<Menu> getMenuList() {
@@ -47,12 +85,22 @@ public class AdminServiceImpl implements AdminService {
     }
 
     public void deleteMenu(long id) {
-        menuRepository.deleteMenu(id);
+        if (id <= 0) {
+            throw new ValidationException("메뉴 ID는 1 이상이어야 합니다.");
+        }
+        if (!menuRepository.deleteMenu(id)) {
+            throw new NotFoundException("삭제할 메뉴가 없습니다.");
+        }
     }
 
-    // --- 카테고리 관리 ---
     public void addCategory(String name) {
-        categoryRepository.addCategory(name);
+        if (name == null || name.trim().isEmpty()) {
+            throw new ValidationException("카테고리명은 비어 있을 수 없습니다.");
+        }
+
+        if (!categoryRepository.addCategory(name.trim())) {
+            throw new BusinessRuleException("카테고리 등록에 실패했습니다.");
+        }
     }
 
     public List<Category> getCategoryList() {
@@ -60,56 +108,53 @@ public class AdminServiceImpl implements AdminService {
     }
 
     public void deleteCategory(int id) {
-        categoryRepository.deleteCategory(id);
+        if (id <= 0) {
+            throw new ValidationException("카테고리 ID는 1 이상이어야 합니다.");
+        }
+        if (!categoryRepository.deleteCategory(id)) {
+            throw new NotFoundException("삭제할 카테고리가 없습니다.");
+        }
     }
 
-    // --- 회원 관리 ---
     public List<Member> getMemberList() {
         return memberRepository.getAllMembers();
     }
 
     public void deleteMember(long id) {
-        memberRepository.deleteMember(id);
+        if (id <= 0) {
+            throw new ValidationException("회원 ID는 1 이상이어야 합니다.");
+        }
+        if (!memberRepository.deleteMember(id)) {
+            throw new NotFoundException("삭제할 회원이 없습니다.");
+        }
     }
 
-    // --- 주문 관리 ---
     public List<Order> getOrderList() {
         return orderRepository.getAllOrders();
     }
 
     public void cancelOrder(long orderId) {
-        if (orderRepository.cancelOrder(orderId)) {
-            System.out.println("주문이 취소되었습니다.");
-        } else {
-            System.out.println("취소 실패: 존재하지 않는 주문이거나 이미 취소된 주문입니다.");
+        if (orderId <= 0) {
+            throw new ValidationException("주문 ID는 1 이상이어야 합니다.");
+        }
+        if (!orderRepository.cancelOrder(orderId)) {
+            throw new NotFoundException("취소할 수 있는 주문이 없습니다.");
         }
     }
 
-    // --- 통계 기능 ---
-    public void showStatistics() {
-        System.out.println("\n===== [매출 통계 리포트] =====");
-        
-        int totalSales = orderRepository.getTotalSales();
-        System.out.printf("▶ 누적 총 매출액: %,d원\n", totalSales);
+    public int getTotalSales() {
+        return orderRepository.getTotalSales();
+    }
 
-        System.out.println("\n[일별 매출 추이 (최근 7일)]");
-        Map<String, Integer> dailySales = orderRepository.getDailySales();
-        if (dailySales.isEmpty()) {
-            System.out.println("- 데이터 없음");
-        } else {
-            dailySales.forEach((date, sales) -> {
-                String bar = "■".repeat(Math.min(20, sales / 1000));
-                System.out.printf("%s | %-20s (%,d원)\n", date, bar, sales);
-            });
-        }
+    public Map<String, Integer> getSalesByCategory() {
+        return orderRepository.getSalesByCategory();
+    }
 
-        System.out.println("\n[카테고리별 매출 현황]");
-        Map<String, Integer> categorySales = orderRepository.getSalesByCategory();
-        categorySales.forEach((cat, sales) -> 
-            System.out.printf("- %-10s: %,d원\n", cat, sales));
+    public List<String> getTopSellingMenus() {
+        return orderRepository.getTopSellingMenus();
+    }
 
-        System.out.println("\n[인기 메뉴 Top 3]");
-        List<String> topMenus = orderRepository.getTopSellingMenus();
-        topMenus.forEach(menu -> System.out.println("- " + menu));
+    public Map<String, Integer> getDailySales() {
+        return orderRepository.getDailySales();
     }
 }
