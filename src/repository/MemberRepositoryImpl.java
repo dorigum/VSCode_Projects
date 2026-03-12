@@ -1,5 +1,6 @@
 package repository;
 
+import exception.RepositoryException;
 import model.Member;
 import model.OrderItem;
 import java.sql.*;
@@ -22,7 +23,7 @@ public class MemberRepositoryImpl implements MemberRepository {
 				}
 			}
 		} catch (SQLException e) {
-			System.err.println("로그인 처리 중 오류: " + e.getMessage());
+			throw new RepositoryException("로그인 처리 중 오류가 발생했습니다.", e);
 		}
 		return null;
 	}
@@ -36,8 +37,7 @@ public class MemberRepositoryImpl implements MemberRepository {
 			pstmt.setInt(3, member.getAge());
 			return pstmt.executeUpdate() > 0;
 		} catch (SQLException e) {
-			System.err.println("회원가입 실패: " + e.getMessage());
-			return false;
+			throw new RepositoryException("회원가입 처리 중 오류가 발생했습니다.", e);
 		}
 	}
 
@@ -51,7 +51,7 @@ public class MemberRepositoryImpl implements MemberRepository {
 					return rs.getInt(1) > 0;
 			}
 		} catch (SQLException e) {
-			e.printStackTrace();
+			throw new RepositoryException("전화번호 조회 중 오류가 발생했습니다.", e);
 		}
 		return false;
 	}
@@ -70,10 +70,10 @@ public class MemberRepositoryImpl implements MemberRepository {
 							rs.getString("menu_name_snapshot"), rs.getString("category_name_snapshot")));
 				}
 			}
+			return historyList;
 		} catch (SQLException e) {
-			e.printStackTrace();
+			throw new RepositoryException("주문 내역 조회 중 오류가 발생했습니다.", e);
 		}
-		return historyList;
 	}
 
 	// 전체 회원 조회
@@ -88,20 +88,20 @@ public class MemberRepositoryImpl implements MemberRepository {
 						rs.getInt("age"), rs.getInt("point_balance"), rs.getString("role"),
 						rs.getTimestamp("created_at")));
 			}
+			return members;
 		} catch (SQLException e) {
-			e.printStackTrace();
+			throw new RepositoryException("회원 목록 조회 중 오류가 발생했습니다.", e);
 		}
-		return members;
 	}
 
 	// 회원 삭제
-	public void deleteMember(long memberId) {
+	public boolean deleteMember(long memberId) {
 		String sql = "DELETE FROM MEMBER WHERE member_id = ?";
 		try (Connection conn = DBUtil.getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
 			pstmt.setLong(1, memberId);
-			pstmt.executeUpdate();
+			return pstmt.executeUpdate() > 0;
 		} catch (SQLException e) {
-			e.printStackTrace();
+			throw new RepositoryException("회원 삭제 중 오류가 발생했습니다.", e);
 		}
 	}
 }
