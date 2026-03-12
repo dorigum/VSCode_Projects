@@ -20,9 +20,7 @@
 - [x] **매출 통계 및 분석**:
     - 누적 총 매출액 집계
     - **카테고리별 매출 분석** (Coffee, Tea 등)
-    - **메뉴별 매출 현황** (각 메뉴의 수익 기여도 합계)
     - **인기 메뉴 Top 3** 선정 (판매량 기준)
-    - **기간별 매출 분석**: 일별(최근 7일), **주차별, 월별, 연도별** 매출 현황 제공
     - **일별 매출 추이 시각화** (최근 7일 막대 그래프)
 - [x] **주문 관리**: 전체 주문 목록 확인 및 **결제 취소(CANCELLED)** 처리
 
@@ -48,21 +46,6 @@
 | **Wishlist** | WISHLIST | 회원의 찜 목록 |
 
 ## 5. 진행 현황 및 히스토리
-
-- **[2026-03-12]** **아키텍처 고도화 및 통계 기능 확장**
-  - **인터페이스 기반 설계(Separation of Concerns) 적용**
-    - 모든 Repository 및 Service 레이어에 Interface와 Implementation(`*Impl`) 구조 도입
-    - `CategoryRepositoryImpl`, `MenuRepositoryImpl`, `MemberRepositoryImpl`, `OrderRepositoryImpl` 구현 완료
-  - **통계 및 분석 기능 강화**
-    - **메뉴별 매출 현황(Revenue by Menu)** 기능 추가: 각 메뉴별 총 매출액 집계 및 리포트 출력
-    - **기간별 매출 분석 고도화**: 일별 추이 외 **주차별, 월별, 연도별** 매출 현황 통계 추가
-  - **시스템 안정성 및 예외 처리 강화**
-    - `AdminController` 내 숫자 입력 시 발생할 수 있는 예외 처리(try-catch) 적용으로 비정상 종료 방지
-    - 팀 브랜치(`team/develop`) 병합 및 코드 충돌 해결을 통한 `main` 브랜치 최신화
-  - **프로젝트 구조 최적화 및 문서 관리**
-    - 문서 관리 폴더를 `Project_Documents`로 통합하여 관리 효율성 증대
-    - 개발 환경별 설정 파일(`.gitignore`, `.vscode`) 정리
-
 - **[2026-03-11]** **프로젝트 환경 고도화 및 이클립스 최적화**
   - `Main.java` → `view.MainView.java`로 변경 및 패키지 구조화
   - 콘솔 한글 깨짐 방지를 위한 **UTF-8 강제 입출력 로직** 적용

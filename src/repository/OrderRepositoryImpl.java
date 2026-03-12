@@ -44,29 +44,7 @@ public class OrderRepositoryImpl implements OrderRepository {
         return stats;
     }
 
-    // 3. 메뉴별 매출 현황
-    public Map<String, Integer> getSalesByMenu() {
-        Map<String, Integer> stats = new LinkedHashMap<>();
-        String sql = "SELECT menu_name_snapshot, SUM(unit_price * quantity) as sales " +
-                     "FROM ORDER_ITEM oi " +
-                     "JOIN ORDERS o ON oi.order_id = o.order_id " +
-                     "WHERE o.status = 'COMPLETED' " +
-                     "GROUP BY menu_name_snapshot " +
-                     "ORDER BY sales DESC";
-        
-        try (Connection conn = DBUtil.getConnection();
-             Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery(sql)) {
-            while (rs.next()) {
-                stats.put(rs.getString("menu_name_snapshot"), rs.getInt("sales"));
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return stats;
-    }
-
-    // 4. 인기 메뉴 Top 3 조회
+    // 3. 인기 메뉴 Top 3 조회
     public List<String> getTopSellingMenus() {
         List<String> topMenus = new ArrayList<>();
         String sql = "SELECT menu_name_snapshot, SUM(quantity) as total_qty " +
@@ -108,69 +86,7 @@ public class OrderRepositoryImpl implements OrderRepository {
         return stats;
     }
 
-    // 5. 주별 매출 현황
-    public Map<String, Integer> getWeeklySales() {
-        Map<String, Integer> stats = new LinkedHashMap<>();
-        String sql = "SELECT YEAR(order_date) as yr, WEEK(order_date) as wk, SUM(total_amount) as weekly_total " +
-                     "FROM ORDERS WHERE status = 'COMPLETED' " +
-                     "GROUP BY YEAR(order_date), WEEK(order_date) " +
-                     "ORDER BY yr ASC, wk ASC";
-        
-        try (Connection conn = DBUtil.getConnection();
-             Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery(sql)) {
-            while (rs.next()) {
-                String label = rs.getInt("yr") + "년 " + rs.getInt("wk") + "주차";
-                stats.put(label, rs.getInt("weekly_total"));
-            }
-        } catch (SQLException e) {
-            System.err.println("❌ [주별 매출 조회 에러]: " + e.getMessage());
-        }
-        return stats;
-    }
-
-    // 6. 월별 매출 현황
-    public Map<String, Integer> getMonthlySales() {
-        Map<String, Integer> stats = new LinkedHashMap<>();
-        String sql = "SELECT YEAR(order_date) as yr, MONTH(order_date) as mon, SUM(total_amount) as monthly_total " +
-                     "FROM ORDERS WHERE status = 'COMPLETED' " +
-                     "GROUP BY YEAR(order_date), MONTH(order_date) " +
-                     "ORDER BY yr ASC, mon ASC";
-        
-        try (Connection conn = DBUtil.getConnection();
-             Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery(sql)) {
-            while (rs.next()) {
-                String label = rs.getInt("yr") + "년 " + String.format("%02d", rs.getInt("mon")) + "월";
-                stats.put(label, rs.getInt("monthly_total"));
-            }
-        } catch (SQLException e) {
-            System.err.println("❌ [월별 매출 조회 에러]: " + e.getMessage());
-        }
-        return stats;
-    }
-
-    // 7. 연도별 매출 현황
-    public Map<String, Integer> getYearlySales() {
-        Map<String, Integer> stats = new LinkedHashMap<>();
-        String sql = "SELECT YEAR(order_date) as yr, SUM(total_amount) as yearly_total " +
-                     "FROM ORDERS WHERE status = 'COMPLETED' " +
-                     "GROUP BY YEAR(order_date) " +
-                     "ORDER BY yr ASC";
-        
-        try (Connection conn = DBUtil.getConnection();
-             Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery(sql)) {
-            while (rs.next()) {
-                stats.put(rs.getInt("yr") + "년", rs.getInt("yearly_total"));
-            }
-        } catch (SQLException e) {
-            System.err.println("❌ [연도별 매출 조회 에러]: " + e.getMessage());
-        }
-        return stats;
-    }
-
-    // 8. 주문 취소 (상태 업데이트)
+    // 5. 주문 취소 (상태 업데이트)
     public boolean cancelOrder(long orderId) {
         String sql = "UPDATE ORDERS SET status = 'CANCELLED' WHERE order_id = ? AND status = 'COMPLETED'";
         try (Connection conn = DBUtil.getConnection();

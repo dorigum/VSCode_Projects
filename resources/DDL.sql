@@ -1,4 +1,4 @@
-use kiosk;
+
 
 CREATE TABLE `MEMBER` (
   `member_id` bigint PRIMARY KEY AUTO_INCREMENT COMMENT '회원 PK',

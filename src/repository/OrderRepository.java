@@ -10,17 +10,9 @@ public interface OrderRepository {
 
     Map<String, Integer> getSalesByCategory();
 
-    Map<String, Integer> getSalesByMenu();
-
     List<String> getTopSellingMenus();
 
     Map<String, Integer> getDailySales();
-
-    Map<String, Integer> getWeeklySales();
-
-    Map<String, Integer> getMonthlySales();
-
-    Map<String, Integer> getYearlySales();
 
     boolean cancelOrder(long orderId);
 

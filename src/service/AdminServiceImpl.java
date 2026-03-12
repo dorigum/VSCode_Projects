@@ -99,50 +99,14 @@ public class AdminServiceImpl implements AdminService {
         } else {
             dailySales.forEach((date, sales) -> {
                 String bar = "■".repeat(Math.min(20, sales / 1000));
-                System.out.printf("%-12s | %-20s (%,d원)\n", date, bar, sales);
+                System.out.printf("%s | %-20s (%,d원)\n", date, bar, sales);
             });
-        }
-
-        System.out.println("\n[주별 매출 현황]");
-        Map<String, Integer> weeklySales = orderRepository.getWeeklySales();
-        if (weeklySales.isEmpty()) {
-            System.out.println("- 데이터 없음");
-        } else {
-            weeklySales.forEach((week, sales) -> 
-                System.out.printf("- %-12s: %,d원\n", week, sales));
-        }
-
-        System.out.println("\n[월별 매출 현황]");
-        Map<String, Integer> monthlySales = orderRepository.getMonthlySales();
-        if (monthlySales.isEmpty()) {
-            System.out.println("- 데이터 없음");
-        } else {
-            monthlySales.forEach((month, sales) -> 
-                System.out.printf("- %-12s: %,d원\n", month, sales));
-        }
-
-        System.out.println("\n[연도별 매출 현황]");
-        Map<String, Integer> yearlySales = orderRepository.getYearlySales();
-        if (yearlySales.isEmpty()) {
-            System.out.println("- 데이터 없음");
-        } else {
-            yearlySales.forEach((year, sales) -> 
-                System.out.printf("- %-12s: %,d원\n", year, sales));
         }
 
         System.out.println("\n[카테고리별 매출 현황]");
         Map<String, Integer> categorySales = orderRepository.getSalesByCategory();
         categorySales.forEach((cat, sales) -> 
             System.out.printf("- %-10s: %,d원\n", cat, sales));
-
-        System.out.println("\n[메뉴별 매출 현황]");
-        Map<String, Integer> menuSales = orderRepository.getSalesByMenu();
-        if (menuSales.isEmpty()) {
-            System.out.println("- 데이터 없음");
-        } else {
-            menuSales.forEach((menu, sales) -> 
-                System.out.printf("- %-15s: %,d원\n", menu, sales));
-        }
 
         System.out.println("\n[인기 메뉴 Top 3]");
         List<String> topMenus = orderRepository.getTopSellingMenus();
