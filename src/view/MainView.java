@@ -21,11 +21,10 @@ public class MainView {
 			e.printStackTrace();
 		}
 
-        MenuRepository menuRepository = new MenuRepositoryImpl();
-        AdminService adminService = new AdminServiceImpl(menuRepository);
-        AdminController adminController = new AdminController(adminService);
-        MemberService memberService = new MemberServiceImpl();
-
+		MenuRepository menuRepository = new MenuRepositoryImpl();
+		AdminService adminService = new AdminServiceImpl(menuRepository);
+		AdminController adminController = new AdminController(adminService);
+		MemberService memberService = new MemberServiceImpl();
 
 		Scanner scanner = new Scanner(System.in, "UTF-8");
 
