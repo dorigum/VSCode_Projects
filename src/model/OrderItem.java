@@ -1,4 +1,5 @@
 package model;
+import java.util.List;
 
 public class OrderItem {
     private long orderItemId;
@@ -8,6 +9,7 @@ public class OrderItem {
     private int unitPrice;
     private String menuNameSnapshot;
     private String categoryNameSnapshot;
+    private List<Option> options;
 
     public OrderItem(long orderItemId, long orderId, long menuId, int quantity, int unitPrice, String menuNameSnapshot, String categoryNameSnapshot) {
         this.orderItemId = orderItemId;
@@ -19,6 +21,17 @@ public class OrderItem {
         this.categoryNameSnapshot = categoryNameSnapshot;
     }
 
+    public OrderItem(long orderItemId, long orderId, long menuId, int quantity, int unitPrice, String menuNameSnapshot, String categoryNameSnapshot, List<Option> options) {
+        this.orderItemId = orderItemId;
+        this.orderId = orderId;
+        this.menuId = menuId;
+        this.quantity = quantity;
+        this.unitPrice = unitPrice;
+        this.menuNameSnapshot = menuNameSnapshot;
+        this.categoryNameSnapshot = categoryNameSnapshot;
+        this.options = options;
+    }
+
     public long getOrderItemId() { return orderItemId; }
     public long getOrderId() { return orderId; }
     public long getMenuId() { return menuId; }
@@ -26,6 +39,8 @@ public class OrderItem {
     public int getUnitPrice() { return unitPrice; }
     public String getMenuNameSnapshot() { return menuNameSnapshot; }
     public String getCategoryNameSnapshot() { return categoryNameSnapshot; }
+    public List<Option> getOptions() { return options; }
+
 
     @Override
     public String toString() {

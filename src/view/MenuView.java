@@ -2,14 +2,22 @@ package view;
 
 import controller.AdminController;
 import controller.MemberController;
+import controller.MenuController;
 import model.Member;
-
+import model.Menu;
+import model.OrderItem;
+import model.OptionGroup;
+import model.Option;
 import java.util.Scanner;
+import com.mysql.cj.x.protobuf.MysqlxCrud.Order;
+import java.util.ArrayList;
+import java.util.List;
 
 public class MenuView {
 	private static final Scanner scanner = new Scanner(System.in, "UTF-8");
 
-	public void run(AdminController adminController, MemberController memberController) {
+	public void run(AdminController adminController, MemberController memberController,
+			MenuController menuController) {
 		while (true) {
 			printMainMenu();
 			int choice = readInt("메뉴 선택: ");
@@ -17,7 +25,7 @@ public class MenuView {
 			if (choice == 1) {
 				runMemberFlow(memberController);
 			} else if (choice == 2) {
-				EndView.success("준비 중인 서비스입니다.");
+				runMenuFlow(menuController, null); // 비회원 주문
 			} else if (choice == 3) {
 				runAdminFlow(adminController);
 			} else if (choice == 0) {
@@ -84,6 +92,131 @@ public class MenuView {
 		}
 	}
 
+	private void runMenuFlow(MenuController menuController, Member member) {
+		List<OrderItem> cart = new ArrayList<>();
+		while (true) {
+			System.out.println("\n1. 인기 상품");
+			System.out.println("2. 신상품");
+			System.out.println("3. 커피");
+			System.out.println("4. 논커피");
+			System.out.println("5. 디저트");
+			System.out.println("8. 카트확인");
+			System.out.println("9. 주문하기");
+			System.out.println("0. 뒤로가기");
+			// System.out.println("4. 로그아웃");
+			int sub = readInt("선택: ");
+
+			List<Menu> menus = null;
+			if (sub == 1) {
+				menus = menuController.getPopularMenuList();
+			} else if (sub == 2) {
+				menus = menuController.getLatestMenuList();
+			} else if (sub == 3) {
+				menus = menuController.getCoffeeMenuList();
+			} else if (sub == 4) {
+				menus = menuController.getNonCoffeeMenuList();
+			} else if (sub == 5) {
+				menus = menuController.getDesertMenuList();
+			} else if (sub == 8) {
+				EndView.printCart(cart);
+			} else if (sub == 9) {
+				runOrderFlow(menuController, cart, member);
+				// 주문 완료
+			} else if (sub == 0) {
+				EndView.success("뒤로 돌아갑니다..");
+				break;
+			} else {
+				FailView.fail("잘못된 선택입니다.");
+			}
+			if (menus != null) {
+				// 메뉴 조회 성공시 메뉴 선택
+				cart = runMenuSelectFlow(menuController, menus, cart, member);
+			}
+		}
+	}
+
+	private List<OrderItem> runMenuSelectFlow(MenuController menuController, List<Menu> menus,
+			List<OrderItem> cart, Member member) {
+		// 메뉴에서 카트에 담아 카트를 반환.
+		EndView.printMenu(menus);
+		while (true) {
+			int menuChoice = readInt("메뉴 선택 (0. 뒤로): ");
+			if (menuChoice == 0) {
+				// 메뉴 목록 선택으로 이동
+				break;
+			}
+			Menu selectedMenu = menus.get(menuChoice - 1);
+			// 옵션선택 > 메뉴와 관련된 옵션 그룹 목록을 보여줘 차례로 선택하게함
+			List<OptionGroup> optionGroups = menuController.getOptionGroups(selectedMenu);
+			
+			// 옵션 선택
+			List<Option> selectedOptions = new ArrayList<>();
+			boolean optionSelectCancled = false;
+			for (OptionGroup optionGroup : optionGroups) {
+				EndView.printOptionGroup(optionGroup);
+				
+				List<Option> options = menuController.getOptions(optionGroup);
+
+				int optionChoice = readInt("옵션 선택 (0. 뒤로): ");
+				if (optionChoice == 0) {
+					optionSelectCancled = true;
+					break;
+				}
+				Option selectedOption = options.get(optionChoice - 1);
+				selectedOptions.add(selectedOption);				
+				System.out.println("옵션 선택 완료");				
+			}
+			if (optionSelectCancled) {
+				break;
+			}
+			int quantity = readInt("개수 선택 (0. 뒤로): ");
+
+			String categorySnapshot = menuController.getCategoryName(selectedMenu);
+			cart.add(new OrderItem(0, 0, selectedMenu.getMenuId(), quantity, selectedMenu.getPrice(), selectedMenu.getMenuName(), categorySnapshot, selectedOptions));
+		}
+		return cart;
+	}
+
+	private void runOrderFlow(MenuController menuController, List<OrderItem> cart, Member member) {
+		while (true) {
+			// 주문시 카트 내용 보여주기
+			EndView.printCart(cart);
+			int sub = readInt("주문하시겠습니까? 1. 주문, 0. 뒤로): ");
+			if (sub == 0) {
+				EndView.success("뒤로 돌아갑니다..");
+				break;
+			}			
+			int result = menuController.order(cart, null); // 비회원주문
+			if (result == 1) {
+				EndView.success("주문이 완료되었습니다.");
+			} else {
+				FailView.fail("주문에 실패했습니다.");
+			}
+			break;
+
+
+
+			// if (sub == 1) {
+			// List<Menu> popularMenus = menuController.getPopularMenuList();
+			// } else if (sub == 2) {
+			// List<Menu> latestMenus = menuController.getLatestMenuList();
+			// } else if (sub == 3) {
+			// List<Menu> coffeeMenus = menuController.getCoffeeMenuList();
+			// } else if (sub == 4) {
+			// List<Menu> nonCoffeeMenus = menuController.getNonCoffeeMenuList();
+			// } else if (sub == 5) {
+			// List<Menu> desertMenus = menuController.getDesertMenuList();
+			// } else if (sub == 0) {
+			// EndView.success("뒤로 돌아갑니다..");
+			// break;
+			// } else {
+			// FailView.fail("잘못된 선택입니다.");
+			// }
+		}
+	}
+
+
+
 	private void runAdminFlow(AdminController adminController) {
 		while (true) {
 			System.out.println("\n===== [관리자 통합 관리 모드] =====");
@@ -136,6 +269,7 @@ public class MenuView {
 	}
 
 	private void runMenuManagement(AdminController adminController) {
+		List<OrderItem> cart = new ArrayList<>();
 		while (true) {
 			System.out.println("\n--- [메뉴 관리] ---");
 			adminController.listMenus();

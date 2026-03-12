@@ -6,6 +6,7 @@ import model.Menu;
 import model.Order;
 import model.OrderItem;
 import model.Wishlist;
+import model.OptionGroup;
 
 import java.util.List;
 import java.util.Map;
@@ -111,5 +112,17 @@ public final class EndView {
             return;
         }
         list.forEach(System.out::println);
+    }
+
+    public static void printMenu(List<Menu> menus){
+        // 메뉴를 보여주는 메서드
+    }
+
+    public static void printCart(List<OrderItem> cart){
+        // 주문에 담긴 카트를 보여주는 메서드
+    }
+
+    public static void printOptionGroup(OptionGroup optionGroup){
+        // 옵션그룹을 차례롤 보여줌
     }
 }
