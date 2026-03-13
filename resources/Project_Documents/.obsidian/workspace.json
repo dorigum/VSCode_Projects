@@ -78,7 +78,8 @@
       }
     ],
     "direction": "horizontal",
-    "width": 300
+    "width": 300,
+    "collapsed": true
   },
   "right": {
     "id": "34731b9d3f9b1c74",
@@ -183,7 +184,7 @@
       "bases:새 베이스 생성하기": false
     }
   },
-  "active": "8ac3d946f25ea907",
+  "active": "7eea5acf3d57e511",
   "lastOpenFiles": [
     "관리자 MVC 구조 상세 분석.md",
     "Project_Specification.md"
