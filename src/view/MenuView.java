@@ -230,7 +230,7 @@ public class MenuView {
 		while (true) {
 			System.out.println("\n--- [카테고리 관리] ---");
 			adminController.listCategories();
-			System.out.println("\n1. 추가 | 2. 삭제 | 0. 뒤로");
+			System.out.println("\n1. 추가 | 2. 삭제 | 3. 옵션 그룹 매핑 설정 | 0. 뒤로");
 			int sub = readInt("선택: ");
 
 			if (sub == 1) {
@@ -239,7 +239,9 @@ public class MenuView {
 			} else if (sub == 2) {
 				int id = readInt("삭제할 카테고리 ID: ");
 				adminController.deleteCategory(id);
-		} else if (sub == 0) {
+			} else if (sub == 3) {
+				runCategoryOptionMapping(adminController);
+			} else if (sub == 0) {
 				break;
 			} else {
 				FailView.fail("잘못된 선택입니다.");
@@ -247,6 +249,37 @@ public class MenuView {
 		}
 	}
 
+	private void runCategoryOptionMapping(AdminController adminController) {
+		adminController.listCategories();
+		int categoryId = readInt("설정할 카테고리 ID (취소: 0): ");
+		if (categoryId == 0) return;
+
+		while (true) {
+			System.out.println("\n--- [카테고리별 옵션 그룹 설정] ---");
+			List<model.OptionGroup> allGroups = adminController.listOptionGroups();
+			System.out.println("\n1. 옵션 그룹 추가 | 2. 옵션 그룹 삭제 | 0. 뒤로");
+			int sub = readInt("선택: ");
+
+			if (sub == 1) {
+				int groupIdx = readInt("추가할 옵션 그룹 번호: ");
+				if (groupIdx < 1 || groupIdx > allGroups.size()) {
+					FailView.fail("올바른 번호를 선택해 주세요.");
+					continue;
+				}
+				int displayOrder = readInt("표시 순서: ");
+				adminController.addOptionGroupToCategory(categoryId, allGroups.get(groupIdx - 1).getGroupId(), displayOrder);
+			} else if (sub == 2) {
+				int groupIdx = readInt("삭제할 옵션 그룹 번호: ");
+				if (groupIdx < 1 || groupIdx > allGroups.size()) {
+					FailView.fail("올바른 번호를 선택해 주세요.");
+					continue;
+				}
+				adminController.removeOptionGroupFromCategory(categoryId, allGroups.get(groupIdx - 1).getGroupId());
+			} else if (sub == 0) {
+				break;
+			}
+		}
+	}
 	private void runMenuManagement(AdminController adminController) {
 		while (true) {
 			System.out.println("\n--- [메뉴 관리] ---");

@@ -154,6 +154,16 @@ public final class EndView {
             String availability = menu.isAvailable() ? "판매중" : "품절";
             String category = menu.getCategoryName() == null ? "" : " [" + menu.getCategoryName() + "]";
             System.out.printf("%2d. %-20s | %,d원 | %s%s%n", i + 1, menu.getMenuName(), menu.getPrice(), availability, category);
+            
+            // 옵션 정보 출력 추가
+            List<OptionGroup> groups = menu.getOptionGroups();
+            if (groups != null && !groups.isEmpty()) {
+                String options = groups.stream()
+                        .map(OptionGroup::getGroupName)
+                        .collect(java.util.stream.Collectors.joining(", "));
+                System.out.println("    └─ 선택 가능한 옵션: " + options);
+            }
+
             if (menu.getDescription() != null && !menu.getDescription().trim().isEmpty()) {
                 System.out.printf("    - %s%n", menu.getDescription());
             }

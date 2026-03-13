@@ -50,6 +50,24 @@ public class AdminController {
         }
     }
 
+    public void addOptionGroupToCategory(int categoryId, long groupId, int displayOrder) {
+        try {
+            adminService.addOptionGroupToCategory(categoryId, groupId, displayOrder);
+            EndView.success("카테고리에 옵션 그룹이 등록되었습니다.");
+        } catch (CafeKioskException e) {
+            FailView.fail(e.getMessage());
+        }
+    }
+
+    public void removeOptionGroupFromCategory(int categoryId, long groupId) {
+        try {
+            adminService.removeOptionGroupFromCategory(categoryId, groupId);
+            EndView.success("카테고리에서 옵션 그룹이 삭제되었습니다.");
+        } catch (CafeKioskException e) {
+            FailView.fail(e.getMessage());
+        }
+    }
+
     public void listMenus() {
         try {
             List<Menu> menus = adminService.getMenuList();

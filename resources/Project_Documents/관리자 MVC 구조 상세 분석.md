@@ -1,58 +1,72 @@
 # ☕ 카페 키오스크 관리자(Admin) MVC 구조 상세 분석
 
-본 문서는 카페 키오스크 프로젝트의 관리자 기능에 적용된 MVC(Model-View-Controller) 패턴과 계층형 아키텍처를 상세히 분석합니다.
+본 문서는 카페 키오스크 프로젝트의 관리자 시스템에 적용된 MVC 패턴과 계층형 아키텍처, 그리고 최근 고도화된 기능들을 상세히 분석합니다.
 
 ---
 
-## 1. 전체 아키텍처 개요
-본 프로젝트는 **Layered Architecture**를 채택하여 각 계층의 책임을 명확히 분리하고 있습니다.
+## 1. 전체 아키텍처 및 계층별 역할
 
-- **View (MainView.java)**: 사용자 인터페이스(UI) 담당. 메뉴 출력 및 사용자 입력 수신.
-- **Controller (AdminController.java)**: 사용자의 요청을 제어하고 서비스 계층으로 전달.
-- **Service (AdminService.java)**: 비즈니스 로직(로그인 검증, 통계 계산, 데이터 가공) 수행.
-- **Repository (Admin/Menu/Order Repository)**: 데이터베이스(DB)와의 직접적인 상호작용(CRUD).
-- **Model (Category, Menu, Order 등)**: 시스템에서 유통되는 데이터의 구조 정의.
+본 시스템은 **Layered Architecture**를 기반으로 하며, 각 계층은 엄격하게 분리된 책임을 가집니다.
 
----
-
-## 2. 주요 구성 요소 상세 분석
-
-### 2.1. Controller: `AdminController.java`
-관리자 모드의 전체적인 흐름을 제어합니다.
-- **주요 기능**: 관리자 인증(ID/PW 확인), 관리자 메인 메뉴 루프 관리, 서비스 메서드 호출.
-- **핵심 로직**: `while(true)` 문 내에서 `switch-case`를 사용하여 메뉴 관리, 통계 확인 등의 분기를 처리합니다.
-
-### 2.2. Service: `AdminService.java`
-데이터를 처리하는 '두뇌' 역할을 합니다.
-- **주요 기능**: 
-  - `loginAdmin()`: 관리자 권한 확인.
-  - `addMenu()`, `updateMenu()`: 메뉴 수정 시 입력된 데이터의 유효성 검사 후 저장 요청.
-  - `viewSalesStats()`: 판매 내역을 분석하여 총 매출액 계산.
-- **특징**: 컨트롤러와 리포지토리 사이에서 데이터를 변환하거나 비즈니스 규칙을 적용합니다.
-
-### 2.3. Repository: `MenuRepository.java` 외
-JDBC를 사용하여 실제 DB에 쿼리를 실행합니다.
-- **주요 기능**: `SELECT`, `INSERT`, `UPDATE`, `DELETE` 쿼리 실행.
-- **특징**: `DBUtil.java`를 통해 커넥션을 관리하며, 결과를 모델 객체로 매핑합니다.
-
-### 2.4. Model (DTO/Entity)
-데이터베이스의 테이블 구조와 1:1로 대응하거나 화면에 전달될 데이터를 담습니다.
-- **Category**: 메뉴 카테고리 정보 (커피, 논커피 등).
-- **Menu**: 메뉴명, 가격, 가용 여부.
-- **Order/OrderItem**: 주문 내역 및 상세 품목 스냅샷.
+### 🏛️ 계층 구조 (Layered Architecture)
+- **View Layer (`view/`)**: 사용자 인터페이스(UI) 및 입출력 전담.
+  - `MenuView`: 관리자 메인 메뉴 및 서브 메뉴 루프 제어.
+  - `EndView`: 성공 결과 및 데이터 목록(메뉴/통계) 시각화 출력.
+  - `FailView`: 에러 메시지 및 예외 상황 출력.
+- **Controller Layer (`controller/`)**: 요청 제어 및 흐름 관리.
+  - `AdminController`: 서비스 계층 호출 및 뷰 전환 결정.
+- **Service Layer (`service/`)**: 핵심 비즈니스 로직 및 데이터 가공.
+  - `AdminService / AdminServiceImpl`: 통계 계산, 유효성 검증, 데이터 변환 로직 포함.
+- **Repository Layer (`repository/`)**: 데이터베이스(DB) 접근 및 영속성 관리.
+  - `CategoryRepository`, `MenuRepository`, `OrderRepository` 등: JDBC를 통한 SQL 실행.
+- **Model Layer (`model/`)**: 도메인 객체 및 데이터 구조 정의.
+  - `Category`, `Menu`, `OptionGroup`, `Order` 등.
 
 ---
 
-## 3. 데이터 흐름 (Sequence)
-1. **입력**: `AdminController`에서 메뉴 번호를 입력받음.
-2. **요청**: `AdminService`의 해당 기능(예: 메뉴 삭제)을 호출.
-3. **처리**: `AdminService`에서 삭제 전 관련 데이터(주문 내역 등) 존재 여부 확인 로직 수행.
-4. **저장**: `MenuRepository`를 통해 DB에 `DELETE` 또는 `UPDATE` 쿼리 실행.
-5. **응답**: 처리 결과를 컨트롤러에 반환하고, 컨트롤러는 최종 결과를 사용자에게 출력.
+## 2. 핵심 기능 상세 분석
+
+### 📁 2.1. 카테고리 및 메뉴 관리 시스템 (CRUD + Option Mapping)
+단순한 정보 저장을 넘어, **카테고리-메뉴-옵션** 간의 복잡한 관계를 객체 지향적으로 관리합니다.
+
+- **카테고리 기반 옵션 자동 매핑**:
+  - `CATEGORY_OPTION_GROUP` 테이블을 통해 특정 카테고리(예: Coffee)에 속한 모든 메뉴가 공통으로 가질 옵션 그룹(온도, 사이즈 등)을 정의합니다.
+  - `CategoryRepositoryImpl`에서 `LEFT JOIN`을 사용하여 카테고리 조회 시 연관된 `OptionGroup` 리스트를 한 번에 로드합니다.
+- **메뉴별 상세 설정**:
+  - `Menu` 모델 내부에 `List<OptionGroup>`을 포함하여, 메뉴 조회 시 해당 메뉴가 사용 가능한 모든 옵션을 객체 그래프 형태로 유지합니다.
+  - `MenuRepositoryImpl.fetchOptionGroups()` 메서드를 통해 메뉴와 옵션 그룹 간의 N:M 관계를 처리합니다.
+- **UI 연동**:
+  - `MenuView`에서 실시간으로 카테고리에 옵션 그룹을 추가/삭제할 수 있는 UI를 제공하여 관리 편의성을 극대화했습니다.
+
+### 📊 2.2. 매출 통계 및 분석 (Statistics & Visualization)
+데이터베이스의 주문 데이터를 가공하여 의사결정에 필요한 정보를 제공합니다.
+
+- **누적 총 매출액**: 모든 완료된 주문(`COMPLETED`)의 합계를 산출합니다.
+- **카테고리별 매출 분석**: 어떤 카테고리(Coffee, Dessert 등)가 가장 높은 매출을 기록하는지 비율을 분석합니다.
+- **인기 메뉴 Top 3**: 판매 수량(`quantity`)을 기준으로 가장 많이 팔린 메뉴 3가지를 추출합니다.
+- **일별 매출 추이 시각화 (Console Chart)**:
+  - 최근 7일간의 매출 데이터를 일자별로 집계합니다.
+  - `EndView`에서 매출액 규모에 비례하여 막대(■)를 출력하는 **콘솔 차트 기능**을 구현하여 시각적 직관성을 높였습니다.
+
+### 👤 2.3. 회원 및 주문 관리
+- **회원 관리**: 전체 회원 목록 조회 및 불량 회원 삭제 기능을 제공합니다.
+- **주문 관리**: 전체 주문 내역을 조회하고, 특정 주문에 대해 **결제 취소(CANCELLED)** 처리를 수행하여 재고 및 포인트를 연동할 수 있는 기반을 마련했습니다.
 
 ---
 
-## 4. 향후 개선 사항 제안
-1. **비밀번호 보안**: `AdminService` 내의 평문 비밀번호를 암호화하여 저장/비교.
-2. **예외 처리**: DB 연결 실패나 잘못된 입력값에 대한 `Try-Catch` 예외 처리 강화.
-3. **통계 고도화**: 단순 매출액 합계 외에 일별/월별 추이 및 카테고리별 점유율 계산 로직 추가.
+## 3. 주요 기술적 특징 (Technical Highlights)
+
+### 🧩 3.1. 객체-관계 매핑 (ORM 유사 구현)
+- JDBC 환경에서 N:M 관계(메뉴-옵션그룹)를 효율적으로 처리하기 위해 **Collection Fetching** 기법을 적용했습니다.
+- `Map<Integer, Category>`와 같은 자료구조를 활용하여 조인 결과셋에서 중복된 부모 객체 생성을 방지하고 자식 객체(옵션그룹)만 추가하는 로직을 구현했습니다.
+
+### 🛡️ 3.2. 데이터 정합성 유지
+- `CategoryOptionRepository` 등을 통해 외래 키 제약 조건을 고려한 데이터 삭제 및 수정 로직을 설계했습니다.
+- 테이블명 예약어 충돌 이슈를 해결하기 위해 `OPTION` → `MENU_OPTION`으로 리팩토링하여 시스템 안정성을 확보했습니다.
+
+---
+
+## 4. 향후 확장 계획 (Roadmap)
+1.  **기간별 상세 조회**: 특정 날짜 범위를 지정하여 통계를 조회하는 기능 추가.
+2.  **재고 연동**: 메뉴 판매 시 원재료 재고가 자동으로 차감되는 로직 구현.
+3.  **엑셀 내보내기**: 매출 통계 데이터를 CSV 또는 Excel 파일로 저장하는 기능.

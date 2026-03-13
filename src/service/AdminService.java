@@ -20,6 +20,12 @@ public interface AdminService {
 
     void deleteCategory(int id);
 
+    Category getCategoryById(int id);
+
+    void addOptionGroupToCategory(int categoryId, long groupId, int displayOrder);
+
+    void removeOptionGroupFromCategory(int categoryId, long groupId);
+
     // 옵션 그룹 관리
     List<OptionGroup> getOptionGroupList();
 

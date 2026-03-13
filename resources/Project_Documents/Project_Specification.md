@@ -18,6 +18,7 @@
 - [x] **메뉴 및 옵션 관리 (CRUD)**: 
     - **메뉴 정보 관리**: 카테고리별 상품 등록, 조회, 삭제
     - **메뉴 옵션 관리**: 옵션 그룹(온도, 사이즈 등) 및 세부 옵션(ICE, Regular 등) 관리 기능 추가
+    - **카테고리별 옵션 설정**: 각 카테고리에 기본 적용될 옵션 그룹 매핑 설정 기능 추가
 - [x] **회원 관리**: 가입된 전체 회원 목록 조회 및 특정 회원 삭제
 - [x] **매출 통계 및 분석**:
     - 누적 총 매출액 집계
@@ -28,7 +29,7 @@
 
 ## 3. 시스템 아키텍처 (Layered Architecture)
 - **Model**: `Menu`, `Member`, `Order`, `MenuOption`, `OptionGroup` (DB 테이블 대응 객체)
-- **View**: `StartView` (진입점), `MenuView` (메인 루프), `EndView` (출력 전담), `FailView` (에러 전담)
+- **View**: `StartView` (진입점), `MenuView` (메인 루프), `EndView` (출력 전담), `FailView` (에러 전담), `OrderingView` (주문 전담)
 - **Controller**: `AdminController`, `MenuController`, `MemberController`
 - **Service**: `AdminService`, `MemberService`, `MenuService`
 - **Repository**: `MenuRepository`, `MemberRepository`, `CategoryRepository`, `OrderRepository`, `MenuOptionRepository`, `OptionGroupRepository`
@@ -41,6 +42,7 @@
 | **Menu** | MENU | 상품명, 가격, 설명, 품절 여부 |
 | **MenuOption** | MENU_OPTION | 세부 메뉴 옵션 (HOT, ICE, Regular, Large 등) |
 | **OptionGroup** | OPTION_GROUP | 옵션 그룹 (온도, 사이즈, 카페인유무 등) |
+| **CategoryOption** | CATEGORY_OPTION_GROUP | 카테고리별 기본 적용 옵션 그룹 매핑 (신규) |
 | **Mapping** | MENU_OPTION_GROUP | 메뉴별 적용 가능한 옵션 그룹 매핑 |
 | **Member** | MEMBER | 회원 정보, 휴대폰 번호(Unique), 포인트, 역할 |
 | **Order** | ORDERS | 주문 총액, 사용/적립 포인트, 주문 상태, 주문 일시 |
@@ -50,29 +52,37 @@
 
 ## 5. 진행 현황 및 히스토리
 
+### [2026-03-13] 카테고리별 옵션 체계 고도화 및 팀 프로젝트 통합
+- **카테고리 기반 옵션 관리**:
+    - `CATEGORY_OPTION_GROUP` 테이블 도입을 통한 카테고리 단위 옵션 일괄 설정 구현.
+    - 커피(온도/사이즈/카페인), 논커피(온도/사이즈/휘핑) 등 카테고리별 기본 옵션 제공 규칙 정의.
+- **Menu 모델 및 연동 로직 강화**:
+    - `Menu` 모델에 `List<OptionGroup>` 필드를 추가하여 메뉴 조회 시 해당 메뉴에 적용 가능한 옵션 정보를 함께 로드하도록 개선.
+    - `MenuRepositoryImpl`에서 `fetchOptionGroups` 메서드를 통해 객체 그래프 탐색 구조 구현.
+- **Repository & Service 고도화**:
+    - `CategoryRepository`에서 `LEFT JOIN`을 사용하여 카테고리와 옵션 그룹 정보를 일괄 로드하도록 개선.
+    - `Category` 모델 내부에 옵션 그룹 리스트(`List<OptionGroup>`)를 포함하여 객체 지향적 구조 강화.
+- **UI/UX 및 관리자 기능 확장**:
+    - `EndView`의 메뉴 목록 출력 시 각 메뉴별 '이용 가능한 옵션' 정보를 시각적으로 표시하여 사용자 편의성 증대.
+    - `MenuView`의 카테고리 관리 메뉴 내에 '옵션 그룹 매핑 설정' 기능을 추가하여 실시간 규칙 제어 가능.
+- **팀 최신 기능 병합**:
+    - 팀 저장소(`develop`)의 `OrderingView` 및 최신 검색/조회 기능들을 성공적으로 병합 및 통합 완료.
+
 ### [2026-03-13] 데이터베이스 예약어 충돌 해결 및 관리자 기능 고도화
 - **DB 아키텍처 개선**:
-    - `OPTION` 테이블명이 SQL 예약어와 충돌하는 문제를 해결하기 위해 **`MENU_OPTION`**으로 테이블명 변경.
-    - 이에 맞춰 Java 클래스도 `Option.java` → **`MenuOption.java`**로 리팩토링.
-    - 필드명 오타 수정 (`gropId` -> `groupId`) 및 JDBC 연동을 위한 Getter/Setter 보강.
+    - `OPTION` 테이블명을 `MENU_OPTION`으로 변경하여 예약어 충돌 이슈 원천 차단.
+    - `Option.java` → `MenuOption.java` 리팩토링 및 오타 수정.
 - **관리자 기능 계층화**:
-    - 관리자 메뉴를 `1. 메뉴 정보 관리`와 `2. 메뉴 옵션 관리`로 분리하여 전문화된 관리 UI 제공.
-    - **옵션 그룹 관리**: 온도, 사이즈, 휘핑유무, 카페인유무 등 그룹에 대한 CRUD 기능 구현.
-    - **세부 옵션 관리**: 각 그룹에 속한 세부 옵션(Regular, Large, ICE, HOT 등)의 명칭, 추가 금액, 표시 순서 관리 기능 구현.
-- **Repository 레이어 확장**:
-    - `OptionGroupRepository`, `MenuOptionRepository` 인터페이스 및 JDBC 구현체(`Impl`) 신규 도입.
-- **개발 환경 안정화**:
-    - 워크스페이스 경로 단순화 및 `.metadata` 최적화를 통해 IDE 연동 오류 해결.
-    - GitHub `feature/cafe-admin` 브랜치에 최신 리팩토링 내역 실시간 동기화 완료.
+    - 메뉴 관리를 '메뉴 정보 관리'와 '메뉴 옵션 관리'로 분리.
+    - 옵션 그룹 및 세부 옵션에 대한 독자적인 CRUD 체계 구축.
 
 ### [2026-03-12] AdminController 리팩토링 및 MVC 패턴 고도화
-- (기존 내용 유지...)
+- (중략)
 
 ### [2026-03-11] 프로젝트 환경 고도화 및 이클립스 최적화
-- (기존 내용 유지...)
+- (중략)
 
 ## 6. 개발 및 협업 가이드 (실행 전 확인)
-1.  **MySQL 설정**: `resources/DDL.sql` -> `resources/DML.sql` 순서로 실행 (예약어 이슈 해결 버전)
-2.  **DB 접속 정보**: `resources/dbinfo.properties` 파일에서 본인의 MySQL 계정/비번 수정
-3.  **라이브러리**: `lib/mysql-connector-j-9.6.0.jar`가 Build Path에 포함되어 있는지 확인
-4.  **인코딩**: 실행 설정(Run Configurations)에서 **Encoding을 UTF-8**로 지정 필수
+1.  **MySQL 설정**: `resources/DDL.sql` -> `resources/DML.sql` 순서로 실행
+2.  **DB 접속 정보**: `resources/dbinfo.properties` 파일에서 계정 정보 수정
+3.  **인코딩**: 실행 설정에서 **Encoding을 UTF-8**로 지정 필수

@@ -7,6 +7,7 @@ TRUNCATE TABLE `ORDER_ITEM`;
 TRUNCATE TABLE `ORDERS`;
 TRUNCATE TABLE `WISHLIST`;
 TRUNCATE TABLE `MENU_OPTION_GROUP`;
+TRUNCATE TABLE `CATEGORY_OPTION_GROUP`;
 TRUNCATE TABLE `MENU_OPTION`;
 TRUNCATE TABLE `OPTION_GROUP`;
 TRUNCATE TABLE `MENU`;
@@ -35,31 +36,44 @@ INSERT INTO `MENU` (category_id, menu_name, price, description, is_available) VA
 
 -- 4. OPTION_GROUP 데이터
 INSERT INTO `OPTION_GROUP` (group_name) VALUES 
-('온도'),
-('사이즈');
+('온도'),        -- ID: 1
+('사이즈'),      -- ID: 2
+('휘핑유무'),    -- ID: 3
+('카페인유무');  -- ID: 4
 
 -- 5. MENU_OPTION 데이터
 INSERT INTO `MENU_OPTION` (group_id, option_name, extra_price, display_order) VALUES 
 (1, 'HOT', 0, 1),
 (1, 'ICE', 500, 2),
 (2, 'Regular', 0, 1),
-(2, 'Large', 1000, 2);
+(2, 'Large', 1000, 2),
+(3, '휘핑유', 0, 1),
+(3, '휘핑무', 0, 2),
+(4, '카페인', 0, 1),
+(4, '디카페인', 500, 2);
 
--- 6. MENU_OPTION_GROUP 매핑 (아메리카노에 온도, 사이즈 적용)
+-- 6. CATEGORY_OPTION_GROUP 매핑 (카테고리별 기본 옵션 설정)
+INSERT INTO `CATEGORY_OPTION_GROUP` (category_id, group_id, display_order) VALUES 
+(1, 1, 1), (1, 2, 2), (1, 4, 3), -- 커피: 온도(1), 사이즈(2), 카페인(4)
+(2, 2, 1), (2, 3, 2);           -- 논커피: 사이즈(2), 휘핑(3) (온도/카페인 제외)
+
+-- 7. MENU_OPTION_GROUP 매핑 (개별 메뉴별 옵션 상속)
+-- 아메리카노(1), 카페라떼(2) -> 커피 카테고리 옵션 상속
 INSERT INTO `MENU_OPTION_GROUP` (menu_id, group_id, display_order) VALUES 
-(1, 1, 1),
-(1, 2, 2),
-(2, 1, 1),
-(2, 2, 2);
+(1, 1, 1), (1, 2, 2), (1, 4, 3),
+(2, 1, 1), (2, 2, 2), (2, 4, 3);
+-- 초코라떼(3) -> 논커피 카테고리 옵션 상속 (사이즈, 휘핑)
+INSERT INTO `MENU_OPTION_GROUP` (menu_id, group_id, display_order) VALUES 
+(3, 2, 1), (3, 3, 2);
 
--- 7. ORDERS 데이터 (샘플 주문 1건)
+-- 8. ORDERS 데이터 (샘플 주문 1건)
 INSERT INTO `ORDERS` (member_id, total_amount, point_used, point_earned, status) VALUES 
 (2, 5000, 0, 500, 'COMPLETED');
 
--- 8. ORDER_ITEM 데이터
+-- 9. ORDER_ITEM 데이터
 INSERT INTO `ORDER_ITEM` (order_id, menu_id, quantity, unit_price, menu_name_snapshot, category_name_snapshot) VALUES 
 (1, 1, 1, 4500, '아메리카노', '커피');
 
--- 9. ORDER_ITEM_OPTION 데이터 (아메리카노 ICE 선택)
+-- 10. ORDER_ITEM_OPTION 데이터 (아메리카노 ICE 선택)
 INSERT INTO `ORDER_ITEM_OPTION` (order_item_id, option_id) VALUES 
 (1, 2);
