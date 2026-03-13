@@ -12,4 +12,6 @@ public interface MenuRepository {
     Menu findById(long id);
 
     boolean deleteMenu(long id);
+
+    List<Menu> getMenusByCategoryName(String categoryName);
 }

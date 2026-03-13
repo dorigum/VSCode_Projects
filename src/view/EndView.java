@@ -142,10 +142,24 @@ public final class EndView {
         list.forEach(System.out::println);
     }
 
-    public static void printMenu(List<Menu> menus){
-        // 메뉴를 보여주는 메서드
-    }
+    public static void printMenu(List<Menu> menus) {
+        System.out.println("\n===== 메뉴 목록 =====");
+        if (menus == null || menus.isEmpty()) {
+            System.out.println("표시할 메뉴가 없습니다.");
+            return;
+        }
 
+        for (int i = 0; i < menus.size(); i++) {
+            Menu menu = menus.get(i);
+            String availability = menu.isAvailable() ? "판매중" : "품절";
+            String category = menu.getCategoryName() == null ? "" : " [" + menu.getCategoryName() + "]";
+            System.out.printf("%2d. %-20s | %,d원 | %s%s%n", i + 1, menu.getMenuName(), menu.getPrice(), availability, category);
+            if (menu.getDescription() != null && !menu.getDescription().trim().isEmpty()) {
+                System.out.printf("    - %s%n", menu.getDescription());
+            }
+        }
+        System.out.println(" 0. 뒤로");
+    }
     public static void printCart(List<OrderItem> cart){
         // 주문에 담긴 카트를 보여주는 메서드
     }
@@ -179,3 +193,6 @@ public final class EndView {
         System.out.println("\n" + optionGroup.getGroupName() + "을(를) 선택해 주세요.");
     }
 }
+
+
+

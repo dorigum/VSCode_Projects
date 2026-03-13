@@ -91,4 +91,34 @@ public class MenuRepositoryImpl implements MenuRepository {
             throw new RepositoryException("메뉴 삭제 중 오류가 발생했습니다.", e);
         }
     }
+
+    public List<Menu> getMenusByCategoryName(String categoryName) {
+        List<Menu> menus = new ArrayList<>();
+        String sql = "SELECT m.*, c.category_name " +
+                     "FROM MENU m " +
+                     "JOIN CATEGORY c ON m.category_id = c.category_id " +
+                     "WHERE c.category_name = ? " +
+                     "ORDER BY m.menu_id";
+        try (Connection conn = DBUtil.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, categoryName);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    menus.add(new Menu(
+                        rs.getLong("menu_id"),
+                        rs.getInt("category_id"),
+                        rs.getString("category_name"),
+                        rs.getString("menu_name"),
+                        rs.getInt("price"),
+                        rs.getString("description"),
+                        rs.getBoolean("is_available"),
+                        rs.getTimestamp("created_at")
+                    ));
+                }
+            }
+            return menus;
+        } catch (SQLException e) {
+            throw new RepositoryException("카테고리별 메뉴 목록 조회 중 오류가 발생했습니다.", e);
+        }
+    }
 }
