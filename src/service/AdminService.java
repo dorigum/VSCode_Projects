@@ -37,7 +37,7 @@ public interface AdminService {
     void deleteMenuOption(long optionId);
 
     // 회원 관리
-...
+    List<Member> getMemberList();
 
     void deleteMember(long id);
 
