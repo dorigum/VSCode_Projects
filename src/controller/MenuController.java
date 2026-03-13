@@ -8,7 +8,7 @@ import view.FailView;
 import java.util.List;
 import model.Menu;
 import model.OptionGroup;
-import model.Option;
+import model.MenuOption;
 
 import model.Member;
 import model.OrderItem;
@@ -65,7 +65,7 @@ public class MenuController {
         return null;
     }
 
-    public List<Option> getOptions(OptionGroup optiongGroup) {
+    public List<MenuOption> getOptions(OptionGroup optiongGroup) {
         System.out.println("옵션 목록 반환");
         return null;
     }

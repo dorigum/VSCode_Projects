@@ -7,7 +7,7 @@ import model.Member;
 import model.Menu;
 import model.OrderItem;
 import model.OptionGroup;
-import model.Option;
+import model.MenuOption;
 import java.util.Scanner;
 import java.util.ArrayList;
 import java.util.List;
@@ -148,12 +148,12 @@ public class MenuView {
 			
 			Menu selectedMenu = menus.get(menuChoice - 1);
 			List<OptionGroup> optionGroups = menuController.getOptionGroups(selectedMenu);
-			List<Option> selectedOptions = new ArrayList<>();
+			List<MenuOption> selectedOptions = new ArrayList<>();
 			boolean optionSelectCancled = false;
 			
 			for (OptionGroup optionGroup : optionGroups) {
 				EndView.printOptionGroup(optionGroup);
-				List<Option> options = menuController.getOptions(optionGroup);
+				List<MenuOption> options = menuController.getOptions(optionGroup);
 
 				int optionChoice = readInt("옵션 선택 (0. 뒤로): ");
 				if (optionChoice == 0) {
