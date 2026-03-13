@@ -167,5 +167,19 @@ public class MenuRepositoryImpl implements MenuRepository {
         
         return groups;
     }
+
+    @Override
+    public void addOptionGroupToMenu(long menuId, long groupId, int displayOrder) {
+        String sql = "INSERT INTO MENU_OPTION_GROUP (menu_id, group_id, display_order) VALUES (?, ?, ?)";
+        try (Connection conn = DBUtil.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setLong(1, menuId);
+            pstmt.setLong(2, groupId);
+            pstmt.setInt(3, displayOrder);
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            throw new RepositoryException("메뉴별 옵션 그룹 등록 중 오류가 발생했습니다.", e);
+        }
+    }
 }
 

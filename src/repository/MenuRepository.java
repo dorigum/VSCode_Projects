@@ -14,4 +14,6 @@ public interface MenuRepository {
     boolean deleteMenu(long id);
 
     List<Menu> getMenusByCategoryName(String categoryName);
+
+    void addOptionGroupToMenu(long menuId, long groupId, int displayOrder);
 }
