@@ -419,7 +419,8 @@ public class MenuView {
 
 	private void runDetailedPeriodStatistics(AdminController adminController) {
 		System.out.println("\n--- [기간별 상세 조회] ---");
-		String start = readText("시작일 (YYYY-MM-DD): ");
+		String start = readText("시작일 (YYYY-MM-DD) (취소: 0): ");
+		if (start.equals("0")) return;
 		String end = readText("종료일 (YYYY-MM-DD): ");
 		adminController.showDetailedPeriodStatistics(start, end);
 	}

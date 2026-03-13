@@ -11,6 +11,7 @@ import repository.MemberRepositoryImpl;
 import repository.WishlistRepository;
 import repository.QuickOrderRepository;
 import java.util.List;
+import model.Order;
 
 public class MemberServiceImpl implements MemberService {
 	private final MemberRepository memberRepository;
@@ -48,13 +49,12 @@ public class MemberServiceImpl implements MemberService {
 
 		// 전화번호 정규화: 하이픈 제거 후 숫자만 추출
 		String digitsOnly = phone.replaceAll("[^0-9]", "");
-		
+
 		// 01012345678 형식을 010-1234-5678 형식으로 변환 (DB 저장 형식에 맞춤)
 		String normalizedPhone = digitsOnly;
 		if (digitsOnly.length() == 11) {
-			normalizedPhone = digitsOnly.substring(0, 3) + "-" + 
-			                  digitsOnly.substring(3, 7) + "-" + 
-			                  digitsOnly.substring(7);
+			normalizedPhone = digitsOnly.substring(0, 3) + "-" + digitsOnly.substring(3, 7) + "-"
+					+ digitsOnly.substring(7);
 		}
 
 		Member member = memberRepository.login(normalizedPhone, password);
@@ -83,7 +83,7 @@ public class MemberServiceImpl implements MemberService {
 	}
 
 	@Override
-	public List<OrderItem> getOrderHistory(Member member) {
+	public List<Order> getOrderHistory(Member member) {
 		validateMember(member);
 		return memberRepository.getOrderHistory(member.getMemberId());
 	}

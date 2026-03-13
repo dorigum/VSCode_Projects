@@ -2,6 +2,7 @@ package repository;
 
 import exception.RepositoryException;
 import model.Member;
+import model.Order;
 import model.OrderItem;
 import java.sql.*;
 import java.util.ArrayList;
@@ -57,20 +58,38 @@ public class MemberRepositoryImpl implements MemberRepository {
 	}
 
 	// 주문 내역 조회
-	public List<OrderItem> getOrderHistory(long memberId) {
-		List<OrderItem> historyList = new ArrayList<>();
-		String sql = "SELECT oi.* FROM ORDER_ITEM oi " + "JOIN ORDERS o ON oi.order_id = o.order_id "
-				+ "WHERE o.member_id = ? ORDER BY o.order_date DESC";
-		try (Connection conn = DBUtil.getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
+	public List<Order> getOrderHistory(long memberId) {
+		List<Order> orderList = new ArrayList<>();
+
+		// 1단계: ORDERS 먼저 조회
+		String orderSql = "SELECT * FROM ORDERS WHERE member_id = ? ORDER BY order_date DESC";
+		try (Connection conn = DBUtil.getConnection(); PreparedStatement pstmt = conn.prepareStatement(orderSql)) {
 			pstmt.setLong(1, memberId);
 			try (ResultSet rs = pstmt.executeQuery()) {
 				while (rs.next()) {
-					historyList.add(new OrderItem(rs.getLong("order_item_id"), rs.getLong("order_id"),
-							rs.getLong("menu_id"), rs.getInt("quantity"), rs.getInt("unit_price"),
-							rs.getString("menu_name_snapshot"), rs.getString("category_name_snapshot")));
+					Order order = new Order(rs.getLong("order_id"), rs.getLong("member_id"), rs.getInt("total_amount"),
+							rs.getInt("point_used"), rs.getInt("point_earned"), rs.getString("status"),
+							rs.getTimestamp("order_date"));
+
+					// 2단계: 각 Order의 OrderItem 조회
+					String itemSql = "SELECT * FROM ORDER_ITEM WHERE order_id = ?";
+					try (PreparedStatement itemPs = conn.prepareStatement(itemSql)) {
+						itemPs.setLong(1, order.getOrderId());
+						List<OrderItem> items = new ArrayList<>();
+						try (ResultSet itemRs = itemPs.executeQuery()) {
+							while (itemRs.next()) {
+								items.add(new OrderItem(itemRs.getLong("order_item_id"), itemRs.getLong("order_id"),
+										itemRs.getLong("menu_id"), itemRs.getInt("quantity"),
+										itemRs.getInt("unit_price"), itemRs.getString("menu_name_snapshot"),
+										itemRs.getString("category_name_snapshot")));
+							}
+						}
+						order.setItems(items);
+					}
+					orderList.add(order);
 				}
 			}
-			return historyList;
+			return orderList;
 		} catch (SQLException e) {
 			throw new RepositoryException("주문 내역 조회 중 오류가 발생했습니다.", e);
 		}
