@@ -16,6 +16,11 @@ public interface OrderRepository {
 
     Map<String, Integer> getSalesByPeriod(String format);
 
+    // 260313 [feat]: 매출 통계 고도화 신규 메서드
+    Map<String, Object> getSalesStatsByPeriod(String startDate, String endDate);
+    Map<Integer, Integer> getHourlySales();
+    List<Map<String, Object>> getTopSpenders(int limit);
+
     boolean cancelOrder(long orderId);
 
     List<Order> getAllOrders();

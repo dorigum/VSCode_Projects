@@ -1,9 +1,6 @@
 package service;
 
-import model.Category;
-import model.Member;
-import model.Menu;
-import model.Order;
+import model.*;
 
 import java.util.List;
 import java.util.Map;
@@ -22,6 +19,28 @@ public interface AdminService {
     List<Category> getCategoryList();
 
     void deleteCategory(int id);
+
+    Category getCategoryById(int id);
+
+    void addOptionGroupToCategory(int categoryId, long groupId, int displayOrder);
+
+    void removeOptionGroupFromCategory(int categoryId, long groupId);
+
+    // 옵션 그룹 관리
+    List<OptionGroup> getOptionGroupList();
+
+    void addOptionGroup(String name);
+
+    void deleteOptionGroup(long groupId);
+
+    // 메뉴 옵션 관리
+    List<MenuOption> getMenuOptionsByGroup(long groupId);
+
+    void addMenuOption(long groupId, String name, int extraPrice, int displayOrder);
+
+    void updateMenuOption(long optionId, String name, int extraPrice, int displayOrder);
+
+    void deleteMenuOption(long optionId);
 
     // 회원 관리
     List<Member> getMemberList();
@@ -43,4 +62,9 @@ public interface AdminService {
     Map<String, Integer> getDailySales();
 
     Map<String, Integer> getSalesByPeriod(String format);
+
+    // 260313 [feat]: 매출 통계 고도화 신규 메서드
+    Map<String, Object> getSalesStatsByPeriod(String startDate, String endDate);
+    Map<Integer, Integer> getHourlySales();
+    List<Map<String, Object>> getTopSpenders(int limit);
 }
