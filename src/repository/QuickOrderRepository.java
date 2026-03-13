@@ -13,7 +13,7 @@ public class QuickOrderRepository {
 		List<OrderItem> list = new ArrayList<>();
 
 		// 1. 가장 최근 order_id 조회
-		String orderSql = "SELECT order_id FROM ORDERS " + "WHERE member_id = ? AND status = 'COMPLETE' "
+		String orderSql = "SELECT order_id FROM ORDERS " + "WHERE member_id = ? AND status = 'COMPLETED' "
 				+ "ORDER BY order_date DESC LIMIT 1";
 
 		try (Connection conn = DBUtil.getConnection(); PreparedStatement pstmt = conn.prepareStatement(orderSql)) {
