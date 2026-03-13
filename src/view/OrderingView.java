@@ -37,11 +37,11 @@ public class OrderingView {
             } else if (sub == 2) {
                 menus = menuController.getLatestMenuList();
             } else if (sub == 3) {
-                menus = menuController.getCoffeeMenuList();
+                menus = menuController.getMenusByCategory("커피");
             } else if (sub == 4) {
-                menus = menuController.getNonCoffeeMenuList();
+                menus = menuController.getMenusByCategory("논커피");
             } else if (sub == 5) {
-                menus = menuController.getDesertMenuList();
+                menus = menuController.getMenusByCategory("디저트");
             } else if (sub == 8) {
                 EndView.printCart(cart);
             } else if (sub == 9) {
@@ -51,6 +51,10 @@ public class OrderingView {
                 break;
             } else {
                 FailView.fail("잘못된 선택입니다.");
+            }
+            if (menus.isEmpty()) {
+                FailView.fail("메뉴가 없습니다.");
+                continue;
             }
             if (menus != null) {
                 cart = runMenuSelectFlow(menuController, menus, cart, member);
@@ -69,11 +73,12 @@ public class OrderingView {
                 continue;
             }
 
-            Menu selectedMenu = menus.get(menuChoice - 1);
+            Menu selectedMenu = menus.get(menuChoice - 1);            
             List<OptionGroup> optionGroups = menuController.getOptionGroups(selectedMenu);
             List<MenuOption> selectedOptions = new ArrayList<>();
             boolean optionSelectCancled = false;
 
+            printOptionGroups(optionGroups);
             for (OptionGroup optionGroup : optionGroups) {
                 EndView.printOptionGroup(optionGroup);
                 List<MenuOption> options = menuController.getOptions(optionGroup);
@@ -138,4 +143,22 @@ public class OrderingView {
         System.out.print(prompt);
         return scanner.nextLine().trim();
     }
+
+    private void printOptionGroups(List<OptionGroup> optionGroups){
+        System.out.println("\n옵션을 선택해 주세요.");
+        if (optionGroups == null || optionGroups.isEmpty()) {
+            System.out.println("등록된 옵션 그룹이 없습니다.");
+            return;
+        }
+        for (int i = 0; i < optionGroups.size(); i++) {
+            OptionGroup optionGroup = optionGroups.get(i);
+            List<MenuOption> options = optionGroup.getOptions();
+            System.out.printf("%s: ",optionGroup.getGroupName());
+            for (int j = 0; j < options.size(); j++) {
+                MenuOption option = options.get(j);
+                System.out.printf("%s,",  option.getOptionName());
+            }
+        }
+    }
 }
+
