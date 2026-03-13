@@ -178,7 +178,8 @@ public class MenuView {
 					FailView.fail("삭제할 옵션 그룹이 없습니다.");
 					continue;
 				}
-				int groupIdx = readInt("삭제할 그룹 번호: ");
+				int groupIdx = readInt("삭제할 그룹 번호 (취소: 0): ");
+				if (groupIdx == 0) continue;
 				if (groupIdx < 1 || groupIdx > groups.size()) {
 					FailView.fail("올바른 번호를 선택해 주세요.");
 					continue;
@@ -208,7 +209,8 @@ public class MenuView {
 					FailView.fail("수정할 옵션이 없습니다.");
 					continue;
 				}
-				int optIdx = readInt("수정할 옵션 번호: ");
+				int optIdx = readInt("수정할 옵션 번호 (취소: 0): ");
+				if (optIdx == 0) continue;
 				if (optIdx < 1 || optIdx > options.size()) {
 					FailView.fail("올바른 번호를 선택해 주세요.");
 					continue;
@@ -223,7 +225,8 @@ public class MenuView {
 					FailView.fail("삭제할 옵션이 없습니다.");
 					continue;
 				}
-				int optIdx = readInt("삭제할 옵션 번호: ");
+				int optIdx = readInt("삭제할 옵션 번호 (취소: 0): ");
+				if (optIdx == 0) continue;
 				if (optIdx < 1 || optIdx > options.size()) {
 					FailView.fail("올바른 번호를 선택해 주세요.");
 					continue;
@@ -248,7 +251,8 @@ public class MenuView {
 				String name = readText("새 카테고리명: ");
 				adminController.addCategory(name);
 			} else if (sub == 2) {
-				int id = readInt("삭제할 카테고리 ID: ");
+				int id = readInt("삭제할 카테고리 ID (취소: 0): ");
+				if (id == 0) continue;
 				adminController.deleteCategory(id);
 			} else if (sub == 3) {
 				runCategoryOptionMapping(adminController);
@@ -315,7 +319,8 @@ public class MenuView {
 					}
 				}
 			} else if (sub == 2) {
-				long menuId = readLong("삭제할 메뉴 ID: ");
+				long menuId = readLong("삭제할 메뉴 ID (취소: 0): ");
+				if (menuId == 0) continue;
 				adminController.deleteMenu(menuId);
 			} else if (sub == 0) {
 				break;
@@ -333,7 +338,8 @@ public class MenuView {
 			int sub = readInt("선택: ");
 
 			if (sub == 1) {
-				long memberId = readLong("삭제할 회원 ID: ");
+				long memberId = readLong("삭제할 회원 ID (취소: 0): ");
+				if (memberId == 0) continue;
 				adminController.deleteMember(memberId);
 			} else if (sub == 0) {
 				break;
