@@ -1,14 +1,14 @@
 package repository;
 
 import model.Member;
-import model.OrderItem;
+import model.Order;
 
 import java.util.List;
 
 public interface MemberRepository {
 	Member login(String phone, String password);
 
-	List<OrderItem> getOrderHistory(long memberId);
+	List<Order> getOrderHistory(long memberId);
 
 	List<Member> getAllMembers();
 

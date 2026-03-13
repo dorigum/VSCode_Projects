@@ -3,7 +3,6 @@ package controller;
 import exception.CafeKioskException;
 import exception.ValidationException;
 import service.MenuService;
-import view.EndView;
 import view.FailView;
 import java.util.List;
 import java.util.Collections;
@@ -32,27 +31,9 @@ public class MenuController {
         return Collections.emptyList();
     }
 
-    public List<Menu> getCoffeeMenuList() {
+    public List<Menu> getMenusByCategory(String categoryName) {
         try {
-            return menuService.getCoffeeMenuList();
-        } catch (CafeKioskException e) {
-            FailView.fail(e.getMessage());
-            return Collections.emptyList();
-        }
-    }
-
-    public List<Menu> getNonCoffeeMenuList() {
-        try {
-            return menuService.getNonCoffeeMenuList();
-        } catch (CafeKioskException e) {
-            FailView.fail(e.getMessage());
-            return Collections.emptyList();
-        }
-    }
-
-    public List<Menu> getDesertMenuList() {
-        try {
-            return menuService.getDesertMenuList();
+            return menuService.getMenusByCategory(categoryName);
         } catch (CafeKioskException e) {
             FailView.fail(e.getMessage());
             return Collections.emptyList();
@@ -75,17 +56,27 @@ public class MenuController {
     }
 
     public List<OptionGroup> getOptionGroups(Menu menu) {
-        System.out.println("옵션그룹 반환");
-        return null;
+        try {
+            return menuService.getOptionGroups(menu);
+        } catch (CafeKioskException e) {
+            FailView.fail(e.getMessage());
+            return Collections.emptyList();
+        }
     }
 
-    public List<MenuOption> getOptions(OptionGroup optiongGroup) {
-        System.out.println("옵션 목록 반환");
-        return null;
+    public List<MenuOption> getOptions(OptionGroup optionGroup) {
+        try {
+            return menuService.getOptionsByGroup(optionGroup);
+        } catch (CafeKioskException e) {
+            FailView.fail(e.getMessage());
+            return Collections.emptyList();
+        }
     }
 
     public String getCategoryName(Menu menu) {
-        System.out.println("카테고리 이름 반환");
-        return null;
+        if (menu == null) {
+            return "";
+        }
+        return menu.getCategoryName() == null ? "" : menu.getCategoryName();
     }
 }

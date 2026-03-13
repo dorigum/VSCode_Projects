@@ -23,13 +23,16 @@ public class WishlistRepository {
 	// 회원별 찜 목록 조회
 	public List<Wishlist> getWishlistByMember(long memberId) {
 		List<Wishlist> list = new ArrayList<>();
-		String sql = "SELECT * FROM WISHLIST WHERE member_id = ? ORDER BY created_at DESC";
+		String sql = "SELECT w.*, m.menu_name, m.price " + "FROM WISHLIST w " + "JOIN MENU m ON w.menu_id = m.menu_id "
+				+ "WHERE w.member_id = ? ORDER BY w.created_at DESC";
 		try (Connection conn = DBUtil.getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
 			pstmt.setLong(1, memberId);
 			try (ResultSet rs = pstmt.executeQuery()) {
 				while (rs.next()) {
 					list.add(new Wishlist(rs.getLong("wishlist_id"), rs.getLong("member_id"), rs.getLong("menu_id"),
-							rs.getTimestamp("created_at")));
+							rs.getTimestamp("created_at"), rs.getString("menu_name"), // 추가!
+							rs.getInt("price") // 추가!
+					));
 				}
 			}
 			return list;
