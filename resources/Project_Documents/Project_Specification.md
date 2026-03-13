@@ -84,29 +84,31 @@
     - 커피(온도/사이즈/카페인), 논커피(온도/사이즈/휘핑) 등 카테고리별 기본 옵션 제공 규칙 정의.
 - **Menu 모델 및 연동 로직 강화**:
     - `Menu` 모델에 `List<OptionGroup>` 필드를 추가하여 메뉴 조회 시 해당 메뉴에 적용 가능한 옵션 정보를 함께 로드하도록 개선.
-    - `MenuRepositoryImpl`에서 `fetchOptionGroups` 메서드를 통해 객체 그래프 탐색 구조 구현.
 - **Repository & Service 고도화**:
     - `CategoryRepository`에서 `LEFT JOIN`을 사용하여 카테고리와 옵션 그룹 정보를 일괄 로드하도록 개선.
     - `Category` 모델 내부에 옵션 그룹 리스트(`List<OptionGroup>`)를 포함하여 객체 지향적 구조 강화.
-- **UI/UX 및 관리자 기능 확장**:
-    - `EndView`의 메뉴 목록 출력 시 각 메뉴별 '이용 가능한 옵션' 정보를 시각적으로 표시하여 사용자 편의성 증대.
-    - `MenuView`의 카테고리 관리 메뉴 내에 '옵션 그룹 매핑 설정' 기능을 추가하여 실시간 규칙 제어 가능.
-- **팀 최신 기능 병합**:
-    - 팀 저장소(`develop`)의 `OrderingView` 및 최신 검색/조회 기능들을 성공적으로 병합 및 통합 완료.
 
 ### [2026-03-13] 데이터베이스 예약어 충돌 해결 및 관리자 기능 고도화
 - **DB 아키텍처 개선**:
     - `OPTION` 테이블명을 `MENU_OPTION`으로 변경하여 예약어 충돌 이슈 원천 차단.
-    - `Option.java` → `MenuOption.java` 리팩토링 및 오타 수정.
 - **관리자 기능 계층화**:
     - 메뉴 관리를 '메뉴 정보 관리'와 '메뉴 옵션 관리'로 분리.
     - 옵션 그룹 및 세부 옵션에 대한 독자적인 CRUD 체계 구축.
 
 ### [2026-03-12] AdminController 리팩토링 및 MVC 패턴 고도화
-- (중략)
+- **Layered Architecture 적용**:
+    - `AdminController` 도입을 통한 View와 Service의 결합도 해제 및 흐름 제어 일원화.
+    - `AdminService` 및 `AdminServiceImpl` 계층 추가로 비즈니스 로직 캡슐화 완료.
+- **관리자 UI 루프 구현**:
+    - 관리자 전용 메뉴 루프 및 하위 메뉴(카테고리/메뉴/회원/통계) 진입 구조 설계.
+    - 데이터 존재 여부 및 입력값 유효성 검증 예외 처리 강화.
 
 ### [2026-03-11] 프로젝트 환경 고도화 및 이클립스 최적화
-- (중략)
+- **데이터베이스 설정 외부화**:
+    - `dbinfo.properties` 도입으로 DB 접속 정보(URL, ID, PW)를 소스 코드와 분리하여 관리.
+- **JDBC 유틸리티 및 빌드 환경 개선**:
+    - `DBUtil` 싱글톤 패턴 적용으로 커넥션 관리 효율화.
+    - 프로젝트 빌드 경로(Build Path) 라이브러리(`mysql-connector`) 설정 최적화 및 인코딩(UTF-8) 통일.
 
 ## 6. 개발 및 협업 가이드 (실행 전 확인)
 1.  **MySQL 설정**: `resources/DDL.sql` -> `resources/DML.sql` 순서로 실행
