@@ -1,14 +1,15 @@
 package service;
 
 import model.Menu;
+import model.MenuOption;
+import model.OptionGroup;
+
 import java.util.List;
 
 public interface MenuService {
     List<Menu> getMenusByCategory(String categoryName);
 
-    List<Menu> getCoffeeMenuList();
+    List<OptionGroup> getOptionGroups(Menu menu);
 
-    List<Menu> getNonCoffeeMenuList();
-
-    List<Menu> getDesertMenuList();
+    List<MenuOption> getOptionsByGroup(OptionGroup optionGroup);
 }

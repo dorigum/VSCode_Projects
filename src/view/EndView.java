@@ -3,11 +3,14 @@ package view;
 import model.Category;
 import model.Member;
 import model.Menu;
+import model.MenuOption;
+import model.OptionGroup;
+import model.OptionSelection;
 import model.Order;
 import model.OrderItem;
 import model.Wishlist;
-import model.OptionGroup;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -224,10 +227,40 @@ public final class EndView {
 			}
 		}
 		System.out.println(" 0. 뒤로");
+		System.out.println(" 8. 카트확인");
+		System.out.println(" 9. 주문하기");
 	}
 
 	public static void printCart(List<OrderItem> cart) {
-		// 주문에 담긴 카트를 보여주는 메서드
+		System.out.println("\n===== 장바구니 조회 =====");
+		if (cart == null || cart.isEmpty()) {
+			System.out.println("현재 장바구니가 비어 있습니다.");
+			return;
+		}
+
+		int total = 0;
+		for (int i = 0; i < cart.size(); i++) {
+			OrderItem item = cart.get(i);
+			int itemTotal = item.getQuantity() * item.getUnitPrice();
+			total += itemTotal;
+
+			System.out.printf("%d. %s (%d개) - 단가: %,d원, 금액: %,d원%n",
+					i + 1,
+					item.getMenuNameSnapshot(),
+					item.getQuantity(),
+					item.getUnitPrice(),
+					itemTotal);
+
+			if (item.getCategoryNameSnapshot() != null && !item.getCategoryNameSnapshot().isBlank()) {
+				System.out.printf("   카테고리: %s%n", item.getCategoryNameSnapshot());
+			}
+
+			List<MenuOption> options = item.getOptions();
+			if (options != null && !options.isEmpty()) {
+				System.out.printf("   선택 옵션: %s%n", formatSelectedOptions(options));
+			}
+		}
+		System.out.printf("합계: %,d원%n", total);
 	}
 
 	public static void printOptionGroups(List<OptionGroup> optionGroups) {
@@ -242,7 +275,7 @@ public final class EndView {
 		}
 	}
 
-	public static void printMenuOptions(OptionGroup group, List<model.MenuOption> options) {
+	public static void printMenuOptions(OptionGroup group, List<MenuOption> options) {
 		System.out.println("\n[" + group.getGroupName() + " 세부 옵션 목록]");
 		if (options == null || options.isEmpty()) {
 			System.out.println("등록된 세부 옵션이 없습니다.");
@@ -251,13 +284,67 @@ public final class EndView {
 		System.out.printf("%-5s %-15s %-10s %-5s\n", "번호", "옵션명", "추가금액", "순서");
 		System.out.println("-".repeat(40));
 		for (int i = 0; i < options.size(); i++) {
-			model.MenuOption opt = options.get(i);
+			MenuOption opt = options.get(i);
 			System.out.printf("%-5d %-15s %+,8d원 %5d\n", i + 1, opt.getOptionName(), opt.getExtraPrice(),
 					opt.getDisplayOrder());
 		}
 	}
 
 	public static void printOptionGroup(OptionGroup optionGroup) {
-		System.out.println("\n" + optionGroup.getGroupName() + "을(를) 선택해 주세요.");
+		System.out.print("\n" + optionGroup.getGroupName() + " ");
+	}
+
+	public static void printSelectedOptionGroups(List<OptionGroup> optionGroups, OptionSelection selection) {
+		System.out.println("\n옵션을 선택해 주세요.");
+		if (optionGroups == null || optionGroups.isEmpty()) {
+			System.out.println("등록된 옵션 그룹이 없습니다.");
+			return;
+		}
+		System.out.println(formatOptionGroups(optionGroups, selection));
+	}
+
+	public static void printSelectableMenuOptions(OptionGroup optionGroup, OptionSelection selection) {
+		List<MenuOption> options = optionGroup.getOptions();
+		System.out.println("\n" + optionGroup.getGroupName() + " 옵션:");
+		if (options == null || options.isEmpty()) {
+			System.out.println("옵션 목록이 없습니다.");
+			return;
+		}
+
+		for (int i = 0; i < options.size(); i++) {
+			MenuOption option = options.get(i);
+			String selectedMark = selection.isSelected(optionGroup.getGroupId(), option.getOptionId()) ? " (선택)" : "";
+			System.out.printf("%d. %s%s%n", i + 1, option.getOptionName(), selectedMark);
+		}
+	}
+
+	private static String formatOptionGroups(List<OptionGroup> optionGroups, OptionSelection selection) {
+		List<String> formattedGroups = new ArrayList<>();
+		for (int i = 0; i < optionGroups.size(); i++) {
+			OptionGroup optionGroup = optionGroups.get(i);
+			formattedGroups.add(formatOptionGroup(optionGroup, selection, i + 1));
+		}
+		return String.join(" | ", formattedGroups);
+	}
+
+	private static String formatOptionGroup(OptionGroup optionGroup, OptionSelection selection, int groupIndex) {
+		List<MenuOption> options = optionGroup.getOptions();
+		List<String> formattedOptions = new ArrayList<>();
+		if (options != null) {
+			for (int i = 0; i < options.size(); i++) {
+				MenuOption option = options.get(i);
+				String selectedMark = selection.isSelected(optionGroup.getGroupId(), option.getOptionId()) ? "(선택)" : "";
+				formattedOptions.add(option.getOptionName() + ":" + (i + 1) + selectedMark);
+			}
+		}
+		return optionGroup.getGroupName() + "(그룹 " + groupIndex + "): " + String.join(", ", formattedOptions);
+	}
+
+	private static String formatSelectedOptions(List<MenuOption> options) {
+		List<String> optionNames = new ArrayList<>();
+		for (MenuOption option : options) {
+			optionNames.add(option.getOptionName());
+		}
+		return String.join(", ", optionNames);
 	}
 }
