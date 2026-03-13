@@ -145,5 +145,18 @@
 
 ## 6. 개발 및 협업 가이드 (실행 전 확인)
 1.  **MySQL 설정**: `resources/DDL.sql` -> `resources/DML.sql` 순서로 실행
-2.  **DB 접속 정보**: `resources/dbinfo.properties` 파일에서 계정 정보 수정
-3.  **인코딩**: 실행 설정에서 **Encoding을 UTF-8**로 지정 필수
+2.  **DB 접속 정보**: `resources/dbinfo.properties` 파일에서 본인의 MySQL 계정/비번 수정
+3.  **라이브러리**: `lib/mysql-connector-j-9.6.0.jar`가 Build Path에 포함되어 있는지 확인
+4.  **인코딩**: 이클립스 실행 설정(Run Configurations)에서 **Encoding을 UTF-8**로 지정 필수
+
+## 7. 협업을 위한 변경사항
+- **최신 DDL 반영 및 테이블 구조 최적화**:
+  - `ORDERITEM` → `ORDER_ITEM`, `OPTIONGROUP` → `OPTION_GROUP` 등 테이블명 명명 규칙 통일 (Snake Case)
+  - `ORDER_ITEM` 테이블에 `menu_name_snapshot`, `category_name_snapshot` 컬럼 추가하여 데이터 정합성 강화 (메뉴명 변경 시에도 과거 주문 내역 보존)
+  - `ORDERS` 테이블의 `ordered_at` → `order_date` 컬럼명 변경
+- **소스 코드 동기화**:
+  - `OrderRepository`, `OrderItem`, `Order` 클래스의 필드 및 SQL 쿼리를 변경된 DDL에 맞춰 전수 업데이트
+  - 인덱스(Index) 설정을 통해 대용량 주문 조회 및 매출 통계 쿼리 성능 최적화
+- **DB 스크립트 현행화**:
+  - 루트의 `ddl.sql` 내용을 `resources/DDL.sql`에 반영하여 실행 환경 일치화 (기존 schema.sql 대체)
+  - 변경된 스키마 구조에 맞춰 샘플 데이터(`DML.sql`) 재구성
