@@ -9,7 +9,7 @@ public class OrderItem {
     private int unitPrice;
     private String menuNameSnapshot;
     private String categoryNameSnapshot;
-    private List<Option> options;
+    private List<MenuOption> options;
 
     public OrderItem(long orderItemId, long orderId, long menuId, int quantity, int unitPrice, String menuNameSnapshot, String categoryNameSnapshot) {
         this.orderItemId = orderItemId;
@@ -21,7 +21,7 @@ public class OrderItem {
         this.categoryNameSnapshot = categoryNameSnapshot;
     }
 
-    public OrderItem(long orderItemId, long orderId, long menuId, int quantity, int unitPrice, String menuNameSnapshot, String categoryNameSnapshot, List<Option> options) {
+    public OrderItem(long orderItemId, long orderId, long menuId, int quantity, int unitPrice, String menuNameSnapshot, String categoryNameSnapshot, List<MenuOption> options) {
         this.orderItemId = orderItemId;
         this.orderId = orderId;
         this.menuId = menuId;
@@ -39,7 +39,7 @@ public class OrderItem {
     public int getUnitPrice() { return unitPrice; }
     public String getMenuNameSnapshot() { return menuNameSnapshot; }
     public String getCategoryNameSnapshot() { return categoryNameSnapshot; }
-    public List<Option> getOptions() { return options; }
+    public List<MenuOption> getOptions() { return options; }
 
 
     @Override

@@ -114,6 +114,66 @@ public class AdminController {
             FailView.fail(e.getMessage());
         }
     }
+
+    // --- 옵션 관리 ---
+    public List<model.OptionGroup> listOptionGroups() {
+        try {
+            List<model.OptionGroup> groups = adminService.getOptionGroupList();
+            EndView.printOptionGroups(groups);
+            return groups;
+        } catch (CafeKioskException e) {
+            FailView.fail(e.getMessage());
+            return null;
+        }
+    }
+
+    public void addOptionGroup(String name) {
+        try {
+            adminService.addOptionGroup(name);
+            EndView.success("옵션 그룹이 등록되었습니다.");
+        } catch (CafeKioskException e) {
+            FailView.fail(e.getMessage());
+        }
+    }
+
+    public List<model.MenuOption> listMenuOptions(model.OptionGroup group) {
+        try {
+            List<model.MenuOption> options = adminService.getMenuOptionsByGroup(group.getGroupId());
+            EndView.printMenuOptions(group, options);
+            return options;
+        } catch (CafeKioskException e) {
+            FailView.fail(e.getMessage());
+            return null;
+        }
+    }
+
+    public void addMenuOption(long groupId, String name, int extraPrice, int displayOrder) {
+        try {
+            adminService.addMenuOption(groupId, name, extraPrice, displayOrder);
+            EndView.success("세부 옵션이 등록되었습니다.");
+        } catch (CafeKioskException e) {
+            FailView.fail(e.getMessage());
+        }
+    }
+
+    public void updateMenuOption(long optionId, String name, int extraPrice, int displayOrder) {
+        try {
+            adminService.updateMenuOption(optionId, name, extraPrice, displayOrder);
+            EndView.success("세부 옵션이 수정되었습니다.");
+        } catch (CafeKioskException e) {
+            FailView.fail(e.getMessage());
+        }
+    }
+
+    public void deleteMenuOption(long optionId) {
+        try {
+            adminService.deleteMenuOption(optionId);
+            EndView.success("세부 옵션이 삭제되었습니다.");
+        } catch (CafeKioskException e) {
+            FailView.fail(e.getMessage());
+        }
+    }
+
     // --- 통계 ---
     public void showStatistics() {
         showDateStatistics("일별 매출 추이", "%Y-%m-%d");

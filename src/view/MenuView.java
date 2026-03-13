@@ -7,7 +7,7 @@ import model.Member;
 import model.Menu;
 import model.OrderItem;
 import model.OptionGroup;
-import model.Option;
+import model.MenuOption;
 import java.util.Scanner;
 import java.util.ArrayList;
 import java.util.List;
@@ -148,12 +148,12 @@ public class MenuView {
 			
 			Menu selectedMenu = menus.get(menuChoice - 1);
 			List<OptionGroup> optionGroups = menuController.getOptionGroups(selectedMenu);
-			List<Option> selectedOptions = new ArrayList<>();
+			List<MenuOption> selectedOptions = new ArrayList<>();
 			boolean optionSelectCancled = false;
 			
 			for (OptionGroup optionGroup : optionGroups) {
 				EndView.printOptionGroup(optionGroup);
-				List<Option> options = menuController.getOptions(optionGroup);
+				List<MenuOption> options = menuController.getOptions(optionGroup);
 
 				int optionChoice = readInt("옵션 선택 (0. 뒤로): ");
 				if (optionChoice == 0) {
@@ -217,7 +217,7 @@ public class MenuView {
 		while (true) {
 			System.out.println("\n===== [관리자 통합 관리 모드] =====");
 			System.out.println("1. 카테고리 관리 (CRUD)");
-			System.out.println("2. 메뉴 관리 (CRUD)");
+			System.out.println("2. 메뉴 및 옵션 관리");
 			System.out.println("3. 회원 관리 (조회/삭제)");
 			System.out.println("4. 주문 관리 (조회/삭제)");
 			System.out.println("5. 매출 통계 및 그래프 조회");
@@ -228,7 +228,7 @@ public class MenuView {
 			if (choice == 1) {
 				runCategoryManagement(adminController);
 			} else if (choice == 2) {
-				runMenuManagement(adminController);
+				runMenuAndOptionManagement(adminController);
 			} else if (choice == 3) {
 				runMemberManagement(adminController);
 			} else if (choice == 4) {
@@ -236,6 +236,100 @@ public class MenuView {
 			} else if (choice == 5) {
 				runStatisticsManagement(adminController);
 			} else if (choice == 0) {
+				break;
+			} else {
+				FailView.fail("잘못된 선택입니다.");
+			}
+		}
+	}
+
+	private void runMenuAndOptionManagement(AdminController adminController) {
+		while (true) {
+			System.out.println("\n--- [메뉴 및 옵션 관리] ---");
+			System.out.println("1. 메뉴 정보 관리");
+			System.out.println("2. 메뉴 옵션 관리");
+			System.out.println("0. 뒤로");
+			int sub = readInt("선택: ");
+
+			if (sub == 1) {
+				runMenuManagement(adminController);
+			} else if (sub == 2) {
+				runOptionManagement(adminController);
+			} else if (sub == 0) {
+				break;
+			} else {
+				FailView.fail("잘못된 선택입니다.");
+			}
+		}
+	}
+
+	private void runOptionManagement(AdminController adminController) {
+		while (true) {
+			System.out.println("\n--- [메뉴 옵션 관리] ---");
+			List<model.OptionGroup> groups = adminController.listOptionGroups();
+			System.out.println("\n1. 그룹 추가 | 2. 세부 옵션 관리 | 0. 뒤로");
+			int sub = readInt("선택: ");
+
+			if (sub == 1) {
+				String name = readText("새 옵션 그룹명 (예: 온도, 사이즈): ");
+				adminController.addOptionGroup(name);
+			} else if (sub == 2) {
+				if (groups == null || groups.isEmpty()) {
+					FailView.fail("먼저 옵션 그룹을 등록해 주세요.");
+					continue;
+				}
+				int groupIdx = readInt("관리할 그룹 번호: ");
+				if (groupIdx < 1 || groupIdx > groups.size()) {
+					FailView.fail("올바른 번호를 선택해 주세요.");
+					continue;
+				}
+				runDetailOptionManagement(adminController, groups.get(groupIdx - 1));
+			} else if (sub == 0) {
+				break;
+			} else {
+				FailView.fail("잘못된 선택입니다.");
+			}
+		}
+	}
+
+	private void runDetailOptionManagement(AdminController adminController, model.OptionGroup group) {
+		while (true) {
+			List<model.MenuOption> options = adminController.listMenuOptions(group);
+			System.out.println("\n1. 옵션 추가 | 2. 옵션 수정 | 3. 옵션 삭제 | 0. 뒤로");
+			int sub = readInt("선택: ");
+
+			if (sub == 1) {
+				String name = readText("옵션명: ");
+				int price = readInt("추가 금액: ");
+				int order = readInt("표시 순서: ");
+				adminController.addMenuOption(group.getGroupId(), name, price, order);
+			} else if (sub == 2) {
+				if (options == null || options.isEmpty()) {
+					FailView.fail("수정할 옵션이 없습니다.");
+					continue;
+				}
+				int optIdx = readInt("수정할 옵션 번호: ");
+				if (optIdx < 1 || optIdx > options.size()) {
+					FailView.fail("올바른 번호를 선택해 주세요.");
+					continue;
+				}
+				model.MenuOption target = options.get(optIdx - 1);
+				String name = readText("새 옵션명 (기존: " + target.getOptionName() + "): ");
+				int price = readInt("새 추가 금액 (기존: " + target.getExtraPrice() + "): ");
+				int order = readInt("새 표시 순서 (기존: " + target.getDisplayOrder() + "): ");
+				adminController.updateMenuOption(target.getOptionId(), name, price, order);
+			} else if (sub == 3) {
+				if (options == null || options.isEmpty()) {
+					FailView.fail("삭제할 옵션이 없습니다.");
+					continue;
+				}
+				int optIdx = readInt("삭제할 옵션 번호: ");
+				if (optIdx < 1 || optIdx > options.size()) {
+					FailView.fail("올바른 번호를 선택해 주세요.");
+					continue;
+				}
+				adminController.deleteMenuOption(options.get(optIdx - 1).getOptionId());
+			} else if (sub == 0) {
 				break;
 			} else {
 				FailView.fail("잘못된 선택입니다.");

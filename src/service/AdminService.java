@@ -1,9 +1,6 @@
 package service;
 
-import model.Category;
-import model.Member;
-import model.Menu;
-import model.Order;
+import model.*;
 
 import java.util.List;
 import java.util.Map;
@@ -23,8 +20,24 @@ public interface AdminService {
 
     void deleteCategory(int id);
 
+    // 옵션 그룹 관리
+    List<OptionGroup> getOptionGroupList();
+
+    void addOptionGroup(String name);
+
+    void deleteOptionGroup(long groupId);
+
+    // 메뉴 옵션 관리
+    List<MenuOption> getMenuOptionsByGroup(long groupId);
+
+    void addMenuOption(long groupId, String name, int extraPrice, int displayOrder);
+
+    void updateMenuOption(long optionId, String name, int extraPrice, int displayOrder);
+
+    void deleteMenuOption(long optionId);
+
     // 회원 관리
-    List<Member> getMemberList();
+...
 
     void deleteMember(long id);
 

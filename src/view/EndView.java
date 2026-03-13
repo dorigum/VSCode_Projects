@@ -150,7 +150,32 @@ public final class EndView {
         // 주문에 담긴 카트를 보여주는 메서드
     }
 
+    public static void printOptionGroups(List<OptionGroup> optionGroups) {
+        System.out.println("\n[옵션 그룹 목록]");
+        if (optionGroups == null || optionGroups.isEmpty()) {
+            System.out.println("등록된 옵션 그룹이 없습니다.");
+            return;
+        }
+        for (int i = 0; i < optionGroups.size(); i++) {
+            System.out.printf("%d. %s (ID: %d)\n", i + 1, optionGroups.get(i).getGroupName(), optionGroups.get(i).getGroupId());
+        }
+    }
+
+    public static void printMenuOptions(OptionGroup group, List<model.MenuOption> options) {
+        System.out.println("\n[" + group.getGroupName() + " 세부 옵션 목록]");
+        if (options == null || options.isEmpty()) {
+            System.out.println("등록된 세부 옵션이 없습니다.");
+            return;
+        }
+        System.out.printf("%-5s %-15s %-10s %-5s\n", "번호", "옵션명", "추가금액", "순서");
+        System.out.println("-".repeat(40));
+        for (int i = 0; i < options.size(); i++) {
+            model.MenuOption opt = options.get(i);
+            System.out.printf("%-5d %-15s %+,8d원 %5d\n", i + 1, opt.getOptionName(), opt.getExtraPrice(), opt.getDisplayOrder());
+        }
+    }
+
     public static void printOptionGroup(OptionGroup optionGroup){
-        // 옵션그룹을 차례롤 보여줌
+        System.out.println("\n" + optionGroup.getGroupName() + "을(를) 선택해 주세요.");
     }
 }

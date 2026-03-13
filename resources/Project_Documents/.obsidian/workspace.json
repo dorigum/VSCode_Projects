@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "관리자 MVC 구조 상세 분석.md",
+                "file": "Project_Specification.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "관리자 MVC 구조 상세 분석"
+              "title": "Project_Specification"
             }
           }
         ]
@@ -184,5 +184,8 @@
     }
   },
   "active": "8ac3d946f25ea907",
-  "lastOpenFiles": []
+  "lastOpenFiles": [
+    "관리자 MVC 구조 상세 분석.md",
+    "Project_Specification.md"
+  ]
 }
