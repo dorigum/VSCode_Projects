@@ -1,8 +1,11 @@
 package controller;
 
+import java.util.List;
+
 import exception.CafeKioskException;
 import exception.ValidationException;
 import model.Member;
+import model.Order;
 import service.MemberService;
 import view.EndView;
 import view.FailView;
@@ -39,7 +42,8 @@ public class MemberController {
 
 	public void showOrderHistory(Member member) {
 		try {
-			EndView.printOrderHistory(member, memberService.getOrderHistory(member));
+			List<Order> orders = memberService.getOrderHistory(member);
+			EndView.printOrderHistory(member, orders);
 		} catch (CafeKioskException e) {
 			FailView.fail(e.getMessage());
 		}
