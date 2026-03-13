@@ -210,8 +210,8 @@ public final class EndView {
         for (int i = 0; i < menus.size(); i++) {
             Menu menu = menus.get(i);
             String availability = menu.isAvailable() ? "판매중" : "품절";
-            String category = menu.getCategoryName() == null ? "" : " [" + menu.getCategoryName() + "]";
-            System.out.printf("▶ [메뉴 ID: %d] %-20s | %,d원 | %s%s%n", menu.getMenuId(), menu.getMenuName(), menu.getPrice(), availability, category);
+            String category = menu.getCategoryName() == null ? "" : "[" + menu.getCategoryName() + "] ";
+            System.out.printf("▶ [메뉴 ID: %d] %s%-20s | %,d원 | %s%n", menu.getMenuId(), category, menu.getMenuName(), menu.getPrice(), availability);
             
             // 옵션 정보 출력 추가
             List<OptionGroup> groups = menu.getOptionGroups();
