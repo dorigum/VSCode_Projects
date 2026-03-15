@@ -121,9 +121,9 @@ public class MemberServiceImpl implements MemberService {
 	}
 
 	@Override
-	public List<OrderItem> getQuickOrder(Member member) {
+	public Order getQuickOrder(Member member) {
 		validateMember(member);
-		return quickOrderRepository.getLastOrderItems(member.getMemberId());
+		return quickOrderRepository.getRecentOrder(member.getMemberId());
 	}
 
 	private void validateMember(Member member) {

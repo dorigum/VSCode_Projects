@@ -56,18 +56,24 @@ public final class EndView {
 		orders.forEach(System.out::println);
 	}
 
-	public static void printQuickOrder(Member member, List<OrderItem> orderItems) {
+	public static void printQuickOrder(Member member, Order order) {
 		System.out.println("\n===== 퀵오더 조회 =====");
 		System.out.println(member.getPhone() + "님의 최근 주문 정보입니다.");
-		if (orderItems == null || orderItems.isEmpty()) {
+		if (order == null || order.getItems() == null || order.getItems().isEmpty()) {
 			System.out.println("이전 주문 내역이 없어 퀵오더를 사용할 수 없습니다.");
 			return;
 		}
 
 		int total = 0;
-		for (OrderItem item : orderItems) {
+		for (OrderItem item : order.getItems()) {
 			System.out.printf("- %-15s %d개 x %,d원\n", item.getMenuNameSnapshot(), item.getQuantity(),
 					item.getUnitPrice());
+			// 옵션 출력
+			if (item.getOptions() != null && !item.getOptions().isEmpty()) {
+				for (MenuOption opt : item.getOptions()) {
+					System.out.printf("    └─ %s\n", opt.getOptionName());
+				}
+			}
 			total += item.getQuantity() * item.getUnitPrice();
 		}
 		System.out.printf("합계: %,d원\n", total);
@@ -244,12 +250,8 @@ public final class EndView {
 			int itemTotal = item.getQuantity() * item.getUnitPrice();
 			total += itemTotal;
 
-			System.out.printf("%d. %s (%d개) - 단가: %,d원, 금액: %,d원%n",
-					i + 1,
-					item.getMenuNameSnapshot(),
-					item.getQuantity(),
-					item.getUnitPrice(),
-					itemTotal);
+			System.out.printf("%d. %s (%d개) - 단가: %,d원, 금액: %,d원%n", i + 1, item.getMenuNameSnapshot(),
+					item.getQuantity(), item.getUnitPrice(), itemTotal);
 
 			if (item.getCategoryNameSnapshot() != null && !item.getCategoryNameSnapshot().isBlank()) {
 				System.out.printf("   카테고리: %s%n", item.getCategoryNameSnapshot());
@@ -333,7 +335,8 @@ public final class EndView {
 		if (options != null) {
 			for (int i = 0; i < options.size(); i++) {
 				MenuOption option = options.get(i);
-				String selectedMark = selection.isSelected(optionGroup.getGroupId(), option.getOptionId()) ? "(선택)" : "";
+				String selectedMark = selection.isSelected(optionGroup.getGroupId(), option.getOptionId()) ? "(선택)"
+						: "";
 				formattedOptions.add(option.getOptionName() + ":" + (i + 1) + selectedMark);
 			}
 		}

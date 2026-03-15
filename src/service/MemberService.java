@@ -20,6 +20,5 @@ public interface MemberService {
 
 	void removeWishlist(long wishlistId);
 
-	List<OrderItem> getQuickOrder(Member member);
-
+	Order getQuickOrder(Member member);
 }

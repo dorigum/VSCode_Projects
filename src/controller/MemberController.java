@@ -6,6 +6,7 @@ import exception.CafeKioskException;
 import exception.ValidationException;
 import model.Member;
 import model.Order;
+import model.OrderItem;
 import service.MemberService;
 import view.EndView;
 import view.FailView;
@@ -75,11 +76,25 @@ public class MemberController {
 		}
 	}
 
-	public void showQuickOrder(Member member) {
+	public List<OrderItem> showQuickOrder(Member member) {
 		try {
-			EndView.printQuickOrder(member, memberService.getQuickOrder(member));
+			Order quickOrder = memberService.getQuickOrder(member);
+			EndView.printQuickOrder(member, quickOrder);
+
+			if (quickOrder == null || quickOrder.getItems() == null || quickOrder.getItems().isEmpty()) {
+				return null;
+			}
+
+			System.out.print("이 주문으로 바로 주문하시겠습니까? (Y/N): ");
+			String input = new java.util.Scanner(System.in).nextLine().trim();
+			if ("Y".equalsIgnoreCase(input)) {
+				return quickOrder.getItems();
+			}
+			return null;
+
 		} catch (CafeKioskException e) {
 			FailView.fail(e.getMessage());
+			return null;
 		}
 	}
 }

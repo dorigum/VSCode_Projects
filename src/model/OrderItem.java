@@ -97,6 +97,11 @@ public class OrderItem {
 		return orderDate;
 	}
 
+	// 아래 추가!
+	public void setOptions(List<MenuOption> options) {
+		this.options = options;
+	}
+
 	@Override
 	public String toString() {
 		return String.format("%s (%d개, 단가: %,d원) | 주문일: %s | 사용포인트: %,d원 | 적립포인트: %,d원", menuNameSnapshot, quantity,
