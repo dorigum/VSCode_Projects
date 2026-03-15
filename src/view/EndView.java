@@ -220,6 +220,23 @@ public final class EndView {
 		System.out.println("=".repeat(40));
 	}
 
+	public static void printDayOfWeekSalesReport(Map<String, Integer> daySales) {
+		System.out.println("\n" + "=".repeat(40));
+		System.out.println("      📅 [요일별 매출 분석]      ");
+		System.out.println("=".repeat(40));
+		if (daySales == null || daySales.isEmpty()) {
+			System.out.println("  - 데이터 없음");
+		} else {
+			int maxSales = daySales.values().stream().mapToInt(Integer::intValue).max().orElse(1);
+			daySales.forEach((day, sales) -> {
+				int barLength = (sales * 25 / maxSales);
+				String bar = "■".repeat(barLength);
+				System.out.printf(" %-4s | %-25s (%,d원)\n", day, bar, sales);
+			});
+		}
+		System.out.println("=".repeat(40));
+	}
+
 	public static void printTopMemberReport(List<Map<String, Object>> topMembers) {
 		System.out.println("\n" + "=".repeat(40));
 		System.out.println("      💎 [우수 회원 기여도 분석]      ");

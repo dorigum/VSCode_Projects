@@ -295,10 +295,40 @@ public class AdminController {
         }
     }
 
+    public void showDayOfWeekStatistics() {
+        try {
+            Map<String, Integer> daySales = adminService.getDayOfWeekSales();
+            EndView.printDayOfWeekSalesReport(daySales);
+        } catch (CafeKioskException e) {
+            FailView.fail(e.getMessage());
+        }
+    }
+
+    public void showIntegratedPeakTimeStatistics() {
+        try {
+            System.out.println("\n[📊 통합 피크타임 매출 분석 리포트]");
+            Map<Integer, Integer> hourlySales = adminService.getHourlySales();
+            Map<String, Integer> daySales = adminService.getDayOfWeekSales();
+            
+            EndView.printHourlySalesReport(hourlySales);
+            EndView.printDayOfWeekSalesReport(daySales);
+        } catch (CafeKioskException e) {
+            FailView.fail(e.getMessage());
+        }
+    }
+
     public void showTopMemberStatistics(int limit) {
         try {
             List<Map<String, Object>> topMembers = adminService.getTopSpenders(limit);
             EndView.printTopMemberReport(topMembers);
+        } catch (CafeKioskException e) {
+            FailView.fail(e.getMessage());
+        }
+    }
+
+    public void exportStatistics() {
+        try {
+            adminService.exportStatisticsToCSV();
         } catch (CafeKioskException e) {
             FailView.fail(e.getMessage());
         }

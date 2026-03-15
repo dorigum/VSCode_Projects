@@ -428,8 +428,9 @@ public class MenuView {
 			System.out.println("2. 카테고리별 매출 분석 (비율)");
 			System.out.println("3. 메뉴별 판매 순위 (Top 3)");
 			System.out.println("4. 기간별 상세 조회 (객단가 분석)");
-			System.out.println("5. 시간대별 매출 분석 (피크타임)");
+			System.out.println("5. 피크타임 통합 분석 (시간+요일)");
 			System.out.println("6. 우수 회원 기여도 분석 (VVIP)");
+			System.out.println("7. 전체 매출 통계 CSV로 내보내기");
 			System.out.println("0. 뒤로");
 			int choice = readInt("선택: ");
 
@@ -438,8 +439,9 @@ public class MenuView {
 				case 2: adminController.showCategoryStatistics(); break;
 				case 3: adminController.showMenuStatistics(); break;
 				case 4: runDetailedPeriodStatistics(adminController); break;
-				case 5: adminController.showHourlySalesStatistics(); break;
+				case 5: adminController.showIntegratedPeakTimeStatistics(); break;
 				case 6: adminController.showTopMemberStatistics(5); break;
+				case 7: adminController.exportStatistics(); break;
 				case 0: return;
 				default: FailView.fail("잘못된 선택입니다.");
 			}

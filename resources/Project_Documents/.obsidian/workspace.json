@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Project_Specification.md",
+                "file": "팀플 작업 메모.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "Project_Specification"
+              "title": "팀플 작업 메모"
             }
           }
         ]
@@ -185,8 +185,8 @@
   },
   "active": "7eea5acf3d57e511",
   "lastOpenFiles": [
+    "Project_Specification.md",
     "카페 키오스크_관리자 기능 관리 명세서.md",
-    "팀플 작업 메모.md",
-    "Project_Specification.md"
+    "팀플 작업 메모.md"
   ]
 }

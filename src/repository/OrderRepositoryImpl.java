@@ -172,6 +172,28 @@ public class OrderRepositoryImpl implements OrderRepository {
     }
 
     @Override
+    public Map<String, Integer> getDayOfWeekSales() {
+        Map<String, Integer> stats = new LinkedHashMap<>();
+        // 요일별 순서 보장을 위해 미리 키를 세팅 (월~일)
+        String[] days = {"Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"};
+        for (String d : days) stats.put(d, 0);
+
+        String sql = "SELECT DAYNAME(order_date) as day, SUM(total_amount) as total "
+                     + "FROM ORDERS WHERE status = 'COMPLETED' "
+                     + "GROUP BY day";
+        try (Connection conn = DBUtil.getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+            while (rs.next()) {
+                stats.put(rs.getString("day"), rs.getInt("total"));
+            }
+            return stats;
+        } catch (SQLException e) {
+            throw new RepositoryException("요일별 매출 조회 중 오류가 발생했습니다.", e);
+        }
+    }
+
+    @Override
     public List<Map<String, Object>> getTopSpenders(int limit) {
         List<Map<String, Object>> spenders = new ArrayList<>();
         String sql = "SELECT m.phone, SUM(o.total_amount) as total_spent "

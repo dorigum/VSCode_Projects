@@ -15,4 +15,7 @@ desktop.ini
 
 dbInfo.properties
 
+# Sales Reports
+resources/cafe_sales_report/
+
 .vscode

@@ -7,6 +7,7 @@ import exception.ValidationException;
 import model.*;
 import repository.*;
 
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -299,7 +300,79 @@ public class AdminServiceImpl implements AdminService {
 	}
 
 	@Override
+	public Map<String, Integer> getDayOfWeekSales() {
+		Map<String, Integer> rawStats = orderRepository.getDayOfWeekSales();
+		Map<String, Integer> koreanStats = new LinkedHashMap<>();
+		
+		// 영문 요일을 한글 요일로 매핑하여 정렬된 순서로 저장
+		String[][] mapping = {
+			{"Monday", "월요일"}, {"Tuesday", "화요일"}, {"Wednesday", "수요일"}, 
+			{"Thursday", "목요일"}, {"Friday", "금요일"}, {"Saturday", "토요일"}, {"Sunday", "일요일"}
+		};
+
+		for (String[] pair : mapping) {
+			koreanStats.put(pair[1], rawStats.getOrDefault(pair[0], 0));
+		}
+		return koreanStats;
+	}
+
+	@Override
 	public List<Map<String, Object>> getTopSpenders(int limit) {
 		return orderRepository.getTopSpenders(limit);
+	}
+
+	@Override
+	public void exportStatisticsToCSV() {
+		String dirPath = "resources/cafe_sales_report";
+		java.io.File dir = new java.io.File(dirPath);
+		if (!dir.exists()) {
+			dir.mkdirs(); // 폴더가 없으면 생성
+		}
+
+		String fileName = dirPath + "/cafe_sales_report_" + System.currentTimeMillis() + ".csv";
+		try (java.io.PrintWriter writer = new java.io.PrintWriter(new java.io.File(fileName), "MS949")) {
+			// 1. 헤더 및 요약
+			writer.println("--- 카페 키오스크 매출 통계 보고서 ---");
+			writer.println("생성일시," + new java.util.Date());
+			writer.println("총 누적 매출," + getTotalSales() + "원");
+			writer.println();
+
+			// 2. 일별 매출 추이
+			writer.println("[일별 매출 추이]");
+			writer.println("날짜,매출액");
+			getDailySales().forEach((date, sales) -> writer.println(date + "," + sales));
+			writer.println();
+
+			// 3. 카테고리별 매출
+			writer.println("[카테고리별 매출 분석]");
+			writer.println("카테고리,매출액");
+			getSalesByCategory().forEach((cat, sales) -> writer.println(cat + "," + sales));
+			writer.println();
+
+			// 4. 시간대별 매출
+			writer.println("[시간대별 매출 분석]");
+			writer.println("시간,매출액");
+			getHourlySales().forEach((hour, sales) -> writer.println(hour + "시," + sales));
+			writer.println();
+
+			// 5. 요일별 매출
+			writer.println("[요일별 매출 분석]");
+			writer.println("요일,매출액");
+			getDayOfWeekSales().forEach((day, sales) -> writer.println(day + "," + sales));
+			writer.println();
+
+			// 6. 우수 회원 Top 5
+			writer.println("[우수 회원 기여도 분석]");
+			writer.println("순위,휴대폰 번호,누적 결제액");
+			List<Map<String, Object>> topMembers = getTopSpenders(5);
+			for (int i = 0; i < topMembers.size(); i++) {
+				Map<String, Object> m = topMembers.get(i);
+				writer.println((i + 1) + "위," + m.get("phone") + "," + m.get("total"));
+			}
+
+			System.out.println("\n[성공] 매출 보고서가 생성되었습니다: " + fileName);
+		} catch (java.io.IOException e) {
+			throw new exception.InfrastructureException("CSV 파일 내보내기 중 오류가 발생했습니다.", e);
+		}
 	}
 }
