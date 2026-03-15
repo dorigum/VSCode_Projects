@@ -68,7 +68,7 @@ public class OrderingView {
 
     private boolean runMenuSelectionLoop(MenuController menuController, List<Menu> menus,
             List<OrderItem> cart, Member member) {
-        EndView.printMenu(menus);
+        EndView.printOrderMenu(menus);
         while (true) {
             int menuChoice = readInt("메뉴 선택 (0. 뒤로, 8. 카트확인, 9. 주문하기): ");
             if (menuChoice == BACK) {
