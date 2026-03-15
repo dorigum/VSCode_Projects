@@ -266,29 +266,72 @@ public class OrderRepositoryImpl implements OrderRepository {
 
     public List<Order> getAllOrders() {
         List<Order> orders = new ArrayList<>();
-        // 260313 [feat]: MEMBER 테이블과 JOIN하여 휴대폰 번호 조회
-        String sql = "SELECT o.*, m.phone " +
-                     "FROM ORDERS o " +
-                     "LEFT JOIN MEMBER m ON o.member_id = m.member_id " +
-                     "ORDER BY o.order_date DESC";
+        // 1. 주문 기본 정보 및 주문자 정보 조회 (MEMBER JOIN)
+        String orderSql = "SELECT o.*, m.phone FROM ORDERS o LEFT JOIN MEMBER m ON o.member_id = m.member_id ORDER BY o.order_date DESC";
+        
         try (Connection conn = DBUtil.getConnection();
              Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery(sql)) {
+             ResultSet rs = stmt.executeQuery(orderSql)) {
+            
             while (rs.next()) {
-                orders.add(new Order(
+                Order order = new Order(
                     rs.getLong("order_id"),
                     rs.getLong("member_id"),
-                    rs.getString("phone"), // 휴대폰 번호 추가
+                    rs.getString("phone"),
                     rs.getInt("total_amount"),
                     rs.getInt("point_used"),
                     rs.getInt("point_earned"),
                     rs.getString("status"),
                     rs.getTimestamp("order_date")
-                ));
+                );
+
+                // 2. 각 주문에 대한 상세 아이템(OrderItem) 조회
+                List<OrderItem> items = new ArrayList<>();
+                String itemSql = "SELECT * FROM ORDER_ITEM WHERE order_id = ?";
+                try (PreparedStatement itemPstmt = conn.prepareStatement(itemSql)) {
+                    itemPstmt.setLong(1, order.getOrderId());
+                    try (ResultSet itemRs = itemPstmt.executeQuery()) {
+                        while (itemRs.next()) {
+                            OrderItem item = new OrderItem(
+                                itemRs.getLong("order_item_id"),
+                                itemRs.getLong("order_id"),
+                                itemRs.getLong("menu_id"),
+                                itemRs.getInt("quantity"),
+                                itemRs.getInt("unit_price"),
+                                itemRs.getString("menu_name_snapshot"),
+                                itemRs.getString("category_name_snapshot")
+                            );
+
+                            // 3. 각 아이템에 대한 선택된 옵션(MenuOption) 조회
+                            List<MenuOption> options = new ArrayList<>();
+                            String optionSql = "SELECT mo.* FROM MENU_OPTION mo " +
+                                             "JOIN ORDER_ITEM_OPTION oio ON mo.option_id = oio.option_id " +
+                                             "WHERE oio.order_item_id = ?";
+                            try (PreparedStatement optPstmt = conn.prepareStatement(optionSql)) {
+                                optPstmt.setLong(1, item.getOrderItemId());
+                                try (ResultSet optRs = optPstmt.executeQuery()) {
+                                    while (optRs.next()) {
+                                        options.add(new MenuOption(
+                                            optRs.getLong("option_id"),
+                                            optRs.getLong("group_id"),
+                                            optRs.getString("option_name"),
+                                            optRs.getInt("extra_price"),
+                                            optRs.getInt("display_order")
+                                        ));
+                                    }
+                                }
+                            }
+                            item.setOptions(options); // 이제 setOptions 메서드를 사용할 수 있습니다.
+                            items.add(item);
+                        }
+                    }
+                }
+                order.setItems(items);
+                orders.add(order);
             }
             return orders;
         } catch (SQLException e) {
-            throw new RepositoryException("주문 목록 조회 중 오류가 발생했습니다.", e);
+            throw new RepositoryException("주문 목록 및 상세 내역 조회 중 오류가 발생했습니다.", e);
         }
     }
 

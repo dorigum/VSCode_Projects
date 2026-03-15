@@ -85,6 +85,10 @@ public class OrderItem {
 		return options;
 	}
 
+	public void setOptions(List<MenuOption> options) {
+		this.options = options;
+	}
+
 	public int getPointUsed() {
 		return pointUsed;
 	}

@@ -9,34 +9,26 @@ public class TestQuery {
         try (Connection conn = DriverManager.getConnection(url, user, password)) {
             conn.setAutoCommit(false);
             try (Statement stmt = conn.createStatement()) {
-                // 1. 커피 카테고리 ID 찾기
-                int coffeeCatId = -1;
-                try (ResultSet rs = stmt.executeQuery("SELECT category_id FROM CATEGORY WHERE category_name LIKE '%커피%' OR category_name LIKE '%Coffee%'")) {
-                    if (rs.next()) coffeeCatId = rs.getInt(1);
-                }
+                // 1. 기존 모든 카테고리-옵션 매핑 초기화
+                stmt.executeUpdate("DELETE FROM CATEGORY_OPTION_GROUP");
 
-                // 2. 옵션 그룹 ID들 찾기
-                int shotId = -1, syrupId = -1, personalId = -1;
-                try (ResultSet rs = stmt.executeQuery("SELECT group_id, group_name FROM OPTION_GROUP WHERE group_name IN ('샷 추가', '시럽 추가', '퍼스널 옵션')")) {
-                    while (rs.next()) {
-                        String name = rs.getString(2);
-                        if (name.equals("샷 추가")) shotId = rs.getInt(1);
-                        else if (name.equals("시럽 추가")) syrupId = rs.getInt(1);
-                        else if (name.equals("퍼스널 옵션")) personalId = rs.getInt(1);
-                    }
-                }
+                // 2. 커피 (ID: 1) 매핑: 사이즈(2), 온도(1), 샷 추가(6), 시럽 추가(7), 카페인유무(3)
+                stmt.executeUpdate("INSERT INTO CATEGORY_OPTION_GROUP (category_id, group_id, display_order) VALUES (1, 2, 1), (1, 1, 2), (1, 6, 3), (1, 7, 4), (1, 3, 5)");
 
-                // 3. 커피 카테고리에 매핑 (중복 무시)
-                if (coffeeCatId != -1) {
-                    if (shotId != -1) stmt.executeUpdate("INSERT IGNORE INTO CATEGORY_OPTION_GROUP (category_id, group_id, display_order) VALUES (" + coffeeCatId + ", " + shotId + ", 3)");
-                    if (syrupId != -1) stmt.executeUpdate("INSERT IGNORE INTO CATEGORY_OPTION_GROUP (category_id, group_id, display_order) VALUES (" + coffeeCatId + ", " + syrupId + ", 4)");
-                    if (personalId != -1) stmt.executeUpdate("INSERT IGNORE INTO CATEGORY_OPTION_GROUP (category_id, group_id, display_order) VALUES (" + coffeeCatId + ", " + personalId + ", 5)");
-                    System.out.println("Success: Mapped shot/syrup options to Coffee category!");
-                } else {
-                    System.out.println("Warning: Coffee category not found.");
-                }
+                // 3. 논커피 (ID: 2) 매핑: 사이즈(2), 온도(1), 퍼스널 옵션(8)
+                stmt.executeUpdate("INSERT INTO CATEGORY_OPTION_GROUP (category_id, group_id, display_order) VALUES (2, 2, 1), (2, 1, 2), (2, 8, 3)");
+
+                // 4. 디저트 (ID: 3)는 매핑하지 않음 (자동으로 비어있게 됨)
+
+                // 5. 청포도에이드(및 다른 논커피) 개별 매핑 오류 방지
+                // 개별 메뉴 매핑 테이블(MENU_OPTION_GROUP)이 있다면 거기서 불필요한 것 제거
+                // (만약 개별 매핑을 사용 중이라면 아래 쿼리 실행)
+                stmt.executeUpdate("DELETE mog FROM MENU_OPTION_GROUP mog " +
+                                 "JOIN MENU m ON mog.menu_id = m.menu_id " +
+                                 "WHERE m.menu_name LIKE '%청포도에이드%' OR m.category_id = 2 OR m.category_id = 3");
 
                 conn.commit();
+                System.out.println("Success: Category options reconfigured correctly!");
             } catch (SQLException e) {
                 conn.rollback();
                 throw e;
