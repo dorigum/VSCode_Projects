@@ -6,6 +6,7 @@ import exception.CafeKioskException;
 import exception.ValidationException;
 import model.Member;
 import model.Order;
+import model.PointHistory;
 import service.MemberService;
 import view.EndView;
 import view.FailView;

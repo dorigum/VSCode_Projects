@@ -78,8 +78,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 200,
-    "collapsed": true
+    "width": 200
   },
   "right": {
     "id": "34731b9d3f9b1c74",
@@ -184,10 +183,10 @@
       "bases:새 베이스 생성하기": false
     }
   },
-  "active": "7eea5acf3d57e511",
+  "active": "8ac3d946f25ea907",
   "lastOpenFiles": [
-    "카페 키오스크_관리자 기능 관리 명세서.md",
     "Project_Specification.md",
-    "팀플 작업 메모.md"
+    "팀플 작업 메모.md",
+    "카페 키오스크_관리자 기능 관리 명세서.md"
   ]
 }

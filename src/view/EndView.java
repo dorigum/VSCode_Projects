@@ -8,6 +8,7 @@ import model.OptionGroup;
 import model.OptionSelection;
 import model.Order;
 import model.OrderItem;
+import model.PointHistory;
 import model.Wishlist;
 
 import java.util.ArrayList;
@@ -35,7 +36,37 @@ public final class EndView {
 	}
 
 	public static void printOrders(List<Order> orders) {
-		printList("[주문 목록]", orders, "주문 내역이 없습니다.");
+		System.out.println("\n===== [전체 주문 관리 목록] =====");
+		if (orders == null || orders.isEmpty()) {
+			System.out.println("주문 내역이 없습니다.");
+			return;
+		}
+
+		for (Order order : orders) {
+			String statusIcon = "COMPLETED".equalsIgnoreCase(order.getStatus()) ? "[V]" : "[X]";
+			String statusText = "COMPLETED".equalsIgnoreCase(order.getStatus()) ? "[COMPLETED]" : "[CANCELLED]";
+			String memberInfo = order.getMemberPhone() != null ? order.getMemberPhone() : "비회원";
+
+			System.out.printf("%s %-11s | 주문ID: %3d | 주문자: %-13s | 총액: %,7d원 | %s\n",
+					statusIcon, statusText, order.getOrderId(), memberInfo, order.getTotalAmount(), order.getOrderDate());
+
+			if (order.getItems() != null && !order.getItems().isEmpty()) {
+				for (OrderItem item : order.getItems()) {
+					System.out.printf("   └─ %-15s %d개 (단가: %,d원)\n", 
+							item.getMenuNameSnapshot(), item.getQuantity(), item.getUnitPrice());
+					
+					// 선택된 옵션이 있다면 출력
+					List<MenuOption> options = item.getOptions();
+					if (options != null && !options.isEmpty()) {
+						String optionStr = options.stream()
+								.map(MenuOption::getOptionName)
+								.collect(java.util.stream.Collectors.joining(", "));
+						System.out.printf("      [옵션: %s]\n", optionStr);
+					}
+				}
+			}
+			System.out.println("-".repeat(85));
+		}
 	}
 
 	public static void printWishlist(Member member, List<Wishlist> wishlists) {
@@ -54,6 +85,17 @@ public final class EndView {
 			return;
 		}
 		orders.forEach(System.out::println);
+	}
+
+	public static void printPointHistory(Member member, List<PointHistory> history) {
+		System.out.println("\n===== [" + member.getPhone() + "] 님의 포인트 변동 내역 =====");
+		if (history == null || history.isEmpty()) {
+			System.out.println("포인트 변동 내역이 없습니다.");
+		} else {
+			history.forEach(h -> System.out.println("  " + h.toString()));
+		}
+		System.out.println("-------------------------------------------");
+		System.out.printf("▶ 현재 보유 포인트: %,d원\n", member.getPointBalance());
 	}
 
 	public static void printQuickOrder(Member member, List<OrderItem> orderItems) {

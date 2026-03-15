@@ -57,20 +57,27 @@ public class AdminServiceImpl implements AdminService {
 
 		// 2. [지능형 옵션 매핑] '프라푸치노' 또는 '라떼' 키워드 검사
 		if (trimmedName.contains("프라푸치노") || trimmedName.contains("라떼")) {
-			// '휘핑유무' 옵션 그룹 찾기
 			List<OptionGroup> allGroups = optionGroupRepository.findAll();
-			OptionGroup whippingGroup = allGroups.stream().filter(g -> g.getGroupName().contains("휘핑")).findFirst()
-					.orElse(null);
+			
+			// '휘핑유무' 및 '사이즈' 옵션 그룹 찾기
+			OptionGroup whippingGroup = allGroups.stream().filter(g -> g.getGroupName().contains("휘핑")).findFirst().orElse(null);
+			OptionGroup sizeGroup = allGroups.stream().filter(g -> g.getGroupName().contains("사이즈")).findFirst().orElse(null);
 
-			if (whippingGroup != null) {
-				// 방금 등록된 메뉴의 ID 조회 (가장 최근 등록된 동일 이름 메뉴)
+			if (whippingGroup != null || sizeGroup != null) {
+				// 방금 등록된 메뉴의 ID 조회
 				List<Menu> menus = menuRepository.getAllMenus();
 				Menu registeredMenu = menus.stream().filter(m -> m.getMenuName().equals(trimmedName))
 						.sorted((m1, m2) -> Long.compare(m2.getMenuId(), m1.getMenuId())).findFirst().orElse(null);
 
 				if (registeredMenu != null) {
-					// 메뉴별 개별 옵션 그룹 매핑 (display_order는 마지막 순번으로 지정)
-					menuRepository.addOptionGroupToMenu(registeredMenu.getMenuId(), whippingGroup.getGroupId(), 99);
+					// 사이즈 옵션 먼저 추가 (표시 순서 고려)
+					if (sizeGroup != null) {
+						menuRepository.addOptionGroupToMenu(registeredMenu.getMenuId(), sizeGroup.getGroupId(), 1);
+					}
+					// 휘핑 옵션 추가
+					if (whippingGroup != null) {
+						menuRepository.addOptionGroupToMenu(registeredMenu.getMenuId(), whippingGroup.getGroupId(), 2);
+					}
 				}
 			}
 		}
