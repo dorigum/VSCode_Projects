@@ -82,7 +82,6 @@ public Member login(String phone, String password) {
 		try (ResultSet rs = pstmt.executeQuery()) {
 			if (rs.next()) {
 				long memberId = rs.getLong("member_id");
-				System.out.println("[DEBUG] 로그인 성공: " + phone + " (ID: " + memberId + ")");
 
 				Member member = new Member(memberId, rs.getString("phone"), rs.getString("password"),
 						rs.getInt("age"), rs.getInt("point_balance"), rs.getString("role"),

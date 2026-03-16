@@ -402,10 +402,8 @@ public class OrderRepositoryImpl implements OrderRepository {
             throws SQLException {
         try (PreparedStatement pstmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             if (member == null) {
-                System.out.println("[DEBUG] 주문 생성: 비회원");
                 pstmt.setNull(1, Types.BIGINT);
             } else {
-                System.out.println("[DEBUG] 주문 생성: 회원 ID = " + member.getMemberId());
                 pstmt.setLong(1, member.getMemberId());
             }
             pstmt.setInt(2, totalAmount);
