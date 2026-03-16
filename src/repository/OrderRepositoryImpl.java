@@ -14,11 +14,11 @@ import java.util.Map;
 public class OrderRepositoryImpl implements OrderRepository {
 
     @Override
-    public int placeOrder(List<OrderItem> orderItems, Member member) {
+    public int placeOrder(List<OrderItem> orderItems, Member member, int pointUsed) {
         String insertOrderSql = "INSERT INTO ORDERS (member_id, total_amount, point_used, point_earned, status) VALUES (?, ?, ?, ?, ?)";
         String insertOrderItemSql = "INSERT INTO ORDER_ITEM (order_id, menu_id, quantity, unit_price, menu_name_snapshot, category_name_snapshot) VALUES (?, ?, ?, ?, ?, ?)";
         String insertOrderItemOptionSql = "INSERT INTO ORDER_ITEM_OPTION (order_item_id, option_id) VALUES (?, ?)";
-        String updateMemberPointSql = "UPDATE MEMBER SET point_balance = point_balance + ? WHERE member_id = ?";
+        String updateMemberPointSql = "UPDATE MEMBER SET point_balance = point_balance - ? + ? WHERE member_id = ?";
 
         Connection conn = null;
         try {
@@ -26,8 +26,7 @@ public class OrderRepositoryImpl implements OrderRepository {
             conn.setAutoCommit(false);
 
             int totalAmount = calculateTotalAmount(orderItems);
-            int pointUsed = 0;
-            int pointEarned = member == null ? 0 : totalAmount / 10;
+            int pointEarned = member == null ? 0 : Math.max(0, (totalAmount - pointUsed) / 10);
             long orderId = insertOrder(conn, insertOrderSql, member, totalAmount, pointUsed, pointEarned);
 
             for (OrderItem orderItem : orderItems) {
@@ -35,8 +34,8 @@ public class OrderRepositoryImpl implements OrderRepository {
                 insertOrderItemOptions(conn, insertOrderItemOptionSql, orderItemId, orderItem.getOptions());
             }
 
-            if (member != null && pointEarned > 0) {
-                updateMemberPoint(conn, updateMemberPointSql, member.getMemberId(), pointEarned);
+            if (member != null && (pointUsed > 0 || pointEarned > 0)) {
+                updateMemberPoint(conn, updateMemberPointSql, member.getMemberId(), pointUsed, pointEarned);
             }
 
             conn.commit();
@@ -422,10 +421,11 @@ public class OrderRepositoryImpl implements OrderRepository {
         }
     }
 
-    private void updateMemberPoint(Connection conn, String sql, long memberId, int pointEarned) throws SQLException {
+    private void updateMemberPoint(Connection conn, String sql, long memberId, int pointUsed, int pointEarned) throws SQLException {
         try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setInt(1, pointEarned);
-            pstmt.setLong(2, memberId);
+            pstmt.setInt(1, pointUsed);
+            pstmt.setInt(2, pointEarned);
+            pstmt.setLong(3, memberId);
             pstmt.executeUpdate();
         }
     }

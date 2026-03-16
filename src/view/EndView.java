@@ -293,6 +293,43 @@ public final class EndView {
 		System.out.println(" 9. 주문하기");
 	}
 
+	public static void printOrderMenu(List<Menu> menus) {
+		System.out.println("\n===== 메뉴 목록 =====");
+		if (menus == null || menus.isEmpty()) {
+			System.out.println("표시할 메뉴가 없습니다.");
+			return;
+		}
+
+		for (int i = 0; i < menus.size(); i++) {
+			Menu menu = menus.get(i);
+			String category = menu.getCategoryName() == null ? "" : "[" + menu.getCategoryName() + "] ";
+			System.out.printf(" %d. %s%-20s | %,d원%n", i + 1, category, menu.getMenuName(), menu.getPrice());
+
+			List<OptionGroup> groups = menu.getOptionGroups();
+			if (groups != null && !groups.isEmpty()) {
+				String options = groups.stream().map(OptionGroup::getGroupName)
+						.collect(java.util.stream.Collectors.joining(", "));
+				System.out.println("    선택 가능한 옵션: " + options);
+			}
+
+			if (menu.getDescription() != null && !menu.getDescription().trim().isEmpty()) {
+				System.out.printf("    - %s%n", menu.getDescription());
+			}
+		}
+		System.out.println(" 0. 뒤로");
+		System.out.println(" 8. 카트확인");
+		System.out.println(" 9. 주문하기");
+	}
+
+	public static void printCartManagementMenu() {
+		System.out.println("\n===== 장바구니 관리 =====");
+		System.out.println("1. 상품 삭제");
+		System.out.println("2. 수량 변경");
+		System.out.println("3. 장바구니 비우기");
+		System.out.println("9. 주문하기");
+		System.out.println("0. 뒤로");
+	}
+
 	public static void printCart(List<OrderItem> cart) {
 		System.out.println("\n===== 장바구니 조회 =====");
 		if (cart == null || cart.isEmpty()) {

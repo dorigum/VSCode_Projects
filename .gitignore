@@ -19,3 +19,4 @@ dbInfo.properties
 resources/cafe_sales_report/
 
 .vscode
+.claude

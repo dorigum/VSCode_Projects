@@ -1,23 +1,26 @@
 package service;
 
-import exception.ValidationException;
 import exception.NotFoundException;
+import exception.ValidationException;
 import model.Member;
 import model.Menu;
 import model.MenuOption;
 import model.OptionGroup;
 import model.OrderItem;
+import repository.MenuOptionRepository;
+import repository.MenuOptionRepositoryImpl;
 import repository.MenuRepository;
 import repository.MenuRepositoryImpl;
 import repository.OptionGroupRepository;
 import repository.OptionGroupRepositoryImpl;
-import repository.MenuOptionRepository;
-import repository.MenuOptionRepositoryImpl;
 import repository.OrderRepository;
 import repository.OrderRepositoryImpl;
+
 import java.util.List;
 
 public class MenuServiceImpl implements MenuService {
+    private static final int DEFAULT_MENU_LIMIT = 5;
+
     private final MenuRepository menuRepository;
     private final OptionGroupRepository optionGroupRepository;
     private final MenuOptionRepository menuOptionRepository;
@@ -25,10 +28,10 @@ public class MenuServiceImpl implements MenuService {
 
     public MenuServiceImpl() {
         this(
-            new MenuRepositoryImpl(),
-            new OptionGroupRepositoryImpl(),
-            new MenuOptionRepositoryImpl(),
-            new OrderRepositoryImpl()
+                new MenuRepositoryImpl(),
+                new OptionGroupRepositoryImpl(),
+                new MenuOptionRepositoryImpl(),
+                new OrderRepositoryImpl()
         );
     }
 
@@ -37,7 +40,7 @@ public class MenuServiceImpl implements MenuService {
     }
 
     public MenuServiceImpl(MenuRepository menuRepository, OptionGroupRepository optionGroupRepository,
-                          MenuOptionRepository menuOptionRepository, OrderRepository orderRepository) {
+            MenuOptionRepository menuOptionRepository, OrderRepository orderRepository) {
         if (menuRepository == null) {
             throw new ValidationException("MenuRepository는 null일 수 없습니다.");
         }
@@ -69,6 +72,20 @@ public class MenuServiceImpl implements MenuService {
     }
 
     @Override
+    public List<Menu> getPopularMenus() {
+        List<Menu> menus = menuRepository.getPopularMenus(DEFAULT_MENU_LIMIT);
+        if (menus == null || menus.isEmpty()) {
+            return getLatestMenus();
+        }
+        return menus;
+    }
+
+    @Override
+    public List<Menu> getLatestMenus() {
+        return menuRepository.getLatestMenus(DEFAULT_MENU_LIMIT);
+    }
+
+    @Override
     public List<OptionGroup> getOptionGroups(Menu menu) {
         if (menu == null) {
             throw new ValidationException("메뉴 정보가 없습니다.");
@@ -91,11 +108,12 @@ public class MenuServiceImpl implements MenuService {
     }
 
     @Override
-    public int placeOrder(List<OrderItem> orderItems, Member member) {
+    public int placeOrder(List<OrderItem> orderItems, Member member, int pointUsed) {
         if (orderItems == null || orderItems.isEmpty()) {
             throw new ValidationException("주문할 메뉴가 없습니다.");
         }
 
+        int totalAmount = 0;
         for (OrderItem orderItem : orderItems) {
             if (orderItem == null) {
                 throw new ValidationException("유효하지 않은 주문 항목이 있습니다.");
@@ -109,8 +127,22 @@ public class MenuServiceImpl implements MenuService {
             if (orderItem.getUnitPrice() < 0) {
                 throw new ValidationException("유효하지 않은 주문 금액입니다.");
             }
+            totalAmount += orderItem.getUnitPrice() * orderItem.getQuantity();
         }
 
-        return orderRepository.placeOrder(orderItems, member);
+        if (pointUsed < 0) {
+            throw new ValidationException("사용 포인트는 0 이상이어야 합니다.");
+        }
+        if (pointUsed > totalAmount) {
+            throw new ValidationException("사용 포인트는 주문 금액을 초과할 수 없습니다.");
+        }
+        if (member == null && pointUsed > 0) {
+            throw new ValidationException("비회원은 포인트를 사용할 수 없습니다.");
+        }
+        if (member != null && pointUsed > member.getPointBalance()) {
+            throw new ValidationException("보유 포인트를 초과해 사용할 수 없습니다.");
+        }
+
+        return orderRepository.placeOrder(orderItems, member, pointUsed);
     }
 }

@@ -28,5 +28,5 @@ public interface OrderRepository {
 
     List<Order> getAllOrders();
 
-    int placeOrder(List<OrderItem> orderItems, Member member);
+    int placeOrder(List<OrderItem> orderItems, Member member, int pointUsed);
 }

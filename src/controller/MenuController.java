@@ -24,11 +24,21 @@ public class MenuController {
     }
 
     public List<Menu> getPopularMenuList() {
-        return Collections.emptyList();
+        try {
+            return menuService.getPopularMenus();
+        } catch (CafeKioskException e) {
+            FailView.fail(e.getMessage());
+            return Collections.emptyList();
+        }
     }
 
     public List<Menu> getLatestMenuList() {
-        return Collections.emptyList();
+        try {
+            return menuService.getLatestMenus();
+        } catch (CafeKioskException e) {
+            FailView.fail(e.getMessage());
+            return Collections.emptyList();
+        }
     }
 
     public List<Menu> getMenusByCategory(String categoryName) {
@@ -46,9 +56,9 @@ public class MenuController {
      * @param member
      * @return 1: 성공, 0 실패
      */
-    public int order(List<OrderItem> orderItems, Member member) {
+    public int order(List<OrderItem> orderItems, Member member, int pointUsed) {
         try {
-            return menuService.placeOrder(orderItems, member);
+            return menuService.placeOrder(orderItems, member, pointUsed);
         } catch (CafeKioskException e) {
             FailView.fail(e.getMessage());
             return 0;

@@ -15,5 +15,9 @@ public interface MenuRepository {
 
     List<Menu> getMenusByCategoryName(String categoryName);
 
+    List<Menu> getLatestMenus(int limit);
+
+    List<Menu> getPopularMenus(int limit);
+
     void addOptionGroupToMenu(long menuId, long groupId, int displayOrder);
 }
