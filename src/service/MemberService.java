@@ -35,8 +35,6 @@ public interface MemberService {
 	 */
 	void updatePoint(long memberId, int amount, String reason);
 
-	List<Menu> getRecommendedMenus(int categoryId);
-
 	void updatePreferredCategory(long memberId, int categoryId);
 
 	boolean register(String phone, String password, int age, int preferredCategoryId);

@@ -55,7 +55,7 @@ public class OrderingView {
 				continue;
 			}
 
-			List<Menu> menus = loadMenus(menuController, categoryChoice);
+			List<Menu> menus = loadMenus(menuController, categoryChoice, member);
 			if (menus == null) {
 				FailView.fail("잘못된 선택입니다.");
 				continue;
@@ -91,7 +91,7 @@ public class OrderingView {
 					return;
 				continue;
 			}
-			List<Menu> menus = loadMenus(menuController, categoryChoice);
+			List<Menu> menus = loadMenus(menuController, categoryChoice, member);
 			if (menus == null) {
 				FailView.fail("잘못된 선택입니다.");
 				continue;
@@ -177,7 +177,7 @@ public class OrderingView {
 		if (optionGroups == null || optionGroups.isEmpty()) {
 			return selection;
 		}
-
+		System.out.println("2313213123123");
 		while (true) {
 			EndView.printSelectedOptionGroups(optionGroups, selection);
 			int groupChoice = readInt("옵션 변경할 그룹 번호 (0. 뒤로, 9. 선택 확정): ");
@@ -303,7 +303,7 @@ public class OrderingView {
 		member.setPointBalance(member.getPointBalance() - pointUsed + pointEarned);
 	}
 
-	private List<Menu> loadMenus(MenuController menuController, int categoryChoice) {
+	private List<Menu> loadMenus(MenuController menuController, int categoryChoice, Member member) {
 		switch (categoryChoice) {
 		case 1:
 			return menuController.getPopularMenuList();
@@ -315,17 +315,18 @@ public class OrderingView {
 			return menuController.getMenusByCategory("논커피");
 		case 5:
 			return menuController.getMenusByCategory("디저트");
+		case 6:
+			return menuController.getRecommendedMenus(member);
 		default:
 			return null;
 		}
 	}
 
 	private void addMenuToCart(MenuController menuController, Menu selectedMenu, List<OrderItem> cart) {
+		System.out.println(selectedMenu);
 		List<OptionGroup> optionGroups = menuController.getOptionGroups(selectedMenu);
 		OptionSelection selection = selectMenuOptions(optionGroups);
-		if (selection == null) {
-			return;
-		}
+		System.out.println(selection);
 
 		int quantity = readPositiveQuantity("개수 선택 (0. 뒤로): ");
 		if (quantity == BACK) {
@@ -441,6 +442,7 @@ public class OrderingView {
 		System.out.println("3. 커피");
 		System.out.println("4. 논커피");
 		System.out.println("5. 디저트");
+		System.out.println("6. 추천메뉴");
 		System.out.println("8. 카트확인");
 		System.out.println("9. 주문하기");
 		System.out.println("0. 뒤로가기");
@@ -462,3 +464,4 @@ public class OrderingView {
 		return scanner.nextLine().trim();
 	}
 }
+

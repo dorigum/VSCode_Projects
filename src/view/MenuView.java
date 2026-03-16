@@ -103,7 +103,7 @@ public class MenuView {
 			} else if (sub == 3) {
 				new OrderingView(scanner).run(menuController, member);
 			} else if (sub == 4) {
-				List<Menu> recommended = memberController.getRecommendedMenus(member);
+				List<Menu> recommended = menuController.getRecommendedMenus(member);
 				if (recommended == null || recommended.isEmpty()) {
 					System.out.println("선호 카테고리를 먼저 설정해주세요.");
 				} else {

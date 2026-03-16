@@ -15,7 +15,7 @@ import repository.OptionGroupRepository;
 import repository.OptionGroupRepositoryImpl;
 import repository.OrderRepository;
 import repository.OrderRepositoryImpl;
-
+import java.util.ArrayList;
 import java.util.List;
 
 public class MenuServiceImpl implements MenuService {
@@ -84,6 +84,19 @@ public class MenuServiceImpl implements MenuService {
     public List<Menu> getLatestMenus() {
         return menuRepository.getLatestMenus(DEFAULT_MENU_LIMIT);
     }
+
+    @Override
+	public List<Menu> getRecommendedMenus(int categoryId) {
+		if (categoryId <= 0)
+			return new ArrayList<>();
+		List<Menu> all = menuRepository.getMenusByCategoryId(categoryId);
+		if (all.size() <= 3)
+			return all;
+
+		// 랜덤 3개 추출
+		java.util.Collections.shuffle(all);
+		return all.subList(0, 3);
+	}
 
     @Override
     public List<OptionGroup> getOptionGroups(Menu menu) {
