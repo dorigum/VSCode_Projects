@@ -157,20 +157,6 @@ public class AdminServiceImpl implements AdminService {
 		return categoryRepository.getCategoryById(id);
 	}
 
-	@Override
-	public void addOptionGroupToCategory(int categoryId, long groupId, int displayOrder) {
-		if (!categoryRepository.addOptionGroupToCategory(categoryId, groupId, displayOrder)) {
-			throw new BusinessRuleException("카테고리별 옵션 그룹 등록에 실패했습니다.");
-		}
-	}
-
-	@Override
-	public void removeOptionGroupFromCategory(int categoryId, long groupId) {
-		if (!categoryRepository.removeOptionGroupFromCategory(categoryId, groupId)) {
-			throw new BusinessRuleException("카테고리별 옵션 그룹 삭제에 실패했습니다.");
-		}
-	}
-
 	// --- 옵션 그룹 관리 ---
 	@Override
 	public List<OptionGroup> getOptionGroupList() {

@@ -10,7 +10,6 @@ DROP TABLE IF EXISTS `ORDERS`;
 DROP TABLE IF EXISTS `POINT_HISTORY`;
 DROP TABLE IF EXISTS `WISHLIST`;
 DROP TABLE IF EXISTS `MENU_OPTION_GROUP`;
-DROP TABLE IF EXISTS `CATEGORY_OPTION_GROUP`;  -- 신규 추가
 DROP TABLE IF EXISTS `MENU_OPTION`;
 DROP TABLE IF EXISTS `OPTION_GROUP`;
 DROP TABLE IF EXISTS `MENU`;
@@ -55,22 +54,14 @@ CREATE TABLE `MENU_OPTION` (
   `group_id` int NOT NULL,
   `option_name` varchar(30) NOT NULL COMMENT 'Regular / Large / HOT / COLD / 카페인 / 디카페인 / 휘핑有 / 휘핑無',
   `extra_price` int NOT NULL DEFAULT 0 COMMENT '추가 금액',
-  `display_order` int NOT NULL COMMENT '옵션 표시 순서 ex) regular(1)/medium(2)/large(3)'
+  `display_order` int NOT NULL COMMENT '옵션 표시 순서'
 );
 
--- 신규: 카테고리별 기본 옵션 그룹 설정 테이블
-CREATE TABLE `CATEGORY_OPTION_GROUP` (
-  `category_id` int NOT NULL,
-  `group_id` int NOT NULL,
-  `display_order` int NOT NULL DEFAULT 0 COMMENT '옵션 그룹 표시 순서',
-  PRIMARY KEY (`category_id`, `group_id`)
-);
-
--- 기존 메뉴별 개별 옵션 테이블 (카테고리 설정을 따르지 않는 특수 메뉴용으로 유지)
+-- 메뉴별 개별 옵션 매핑 테이블
 CREATE TABLE `MENU_OPTION_GROUP` (
   `menu_id` bigint NOT NULL,
   `group_id` int NOT NULL,
-  `display_order` int NOT NULL COMMENT '옵션 그룹 표시 순서',
+  `display_order` int NOT NULL DEFAULT 0 COMMENT '옵션 그룹 표시 순서',
   PRIMARY KEY (`menu_id`, `group_id`)
 );
 
@@ -84,9 +75,9 @@ CREATE TABLE `WISHLIST` (
 CREATE TABLE `ORDERS` (
   `order_id` bigint PRIMARY KEY AUTO_INCREMENT,
   `member_id` bigint COMMENT '비회원이면 NULL',
-  `total_amount` int NOT NULL COMMENT '최종 결제 금액 (포인트 차감 후)',
+  `total_amount` int NOT NULL COMMENT '최종 결제 금액',
   `point_used` int NOT NULL DEFAULT 0,
-  `point_earned` int NOT NULL DEFAULT 0 COMMENT '결제 금액의 10%',
+  `point_earned` int NOT NULL DEFAULT 0,
   `status` varchar(10) NOT NULL DEFAULT 'PENDING' COMMENT 'PENDING / COMPLETED / CANCELLED',
   `order_date` datetime NOT NULL DEFAULT (now())
 );
@@ -95,10 +86,10 @@ CREATE TABLE `ORDER_ITEM` (
   `order_item_id` bigint PRIMARY KEY AUTO_INCREMENT,
   `order_id` bigint NOT NULL,
   `menu_id` bigint NOT NULL,
-  `quantity` int NOT NULL COMMENT '주문 개수',
-  `unit_price` int NOT NULL COMMENT '주문 시점 단가 스냅샷',
-  `menu_name_snapshot` varchar(100) NOT NULL COMMENT '주문 시점 메뉴 이름 스냅샷',
-  `category_name_snapshot` varchar(100) NOT NULL COMMENT '주문 시점 카테고리 스냅샷'
+  `quantity` int NOT NULL,
+  `unit_price` int NOT NULL,
+  `menu_name_snapshot` varchar(100) NOT NULL,
+  `category_name_snapshot` varchar(100) NOT NULL
 );
 
 CREATE TABLE `ORDER_ITEM_OPTION` (
@@ -107,12 +98,11 @@ CREATE TABLE `ORDER_ITEM_OPTION` (
   PRIMARY KEY (`order_item_id`, `option_id`)
 );
 
--- 신규: 포인트 변동 내역 테이블
 CREATE TABLE `POINT_HISTORY` (
   `history_id` int PRIMARY KEY AUTO_INCREMENT,
   `member_id` bigint NOT NULL,
-  `amount` int NOT NULL COMMENT '변동 금액 (양수: 적립, 음수: 사용)',
-  `reason` varchar(255) NOT NULL COMMENT '변동 사유',
+  `amount` int NOT NULL,
+  `reason` varchar(255) NOT NULL,
   `created_at` datetime NOT NULL DEFAULT (now()),
   FOREIGN KEY (`member_id`) REFERENCES `MEMBER` (`member_id`) ON DELETE CASCADE
 );
@@ -127,8 +117,6 @@ CREATE INDEX `ORDER_ITEM_index_6` ON `ORDER_ITEM` (`order_id`);
 -- 5. 외래 키 제약 조건 설정
 ALTER TABLE `MENU` ADD FOREIGN KEY (`category_id`) REFERENCES `CATEGORY` (`category_id`);
 ALTER TABLE `MENU_OPTION` ADD FOREIGN KEY (`group_id`) REFERENCES `OPTION_GROUP` (`group_id`);
-ALTER TABLE `CATEGORY_OPTION_GROUP` ADD FOREIGN KEY (`category_id`) REFERENCES `CATEGORY` (`category_id`);
-ALTER TABLE `CATEGORY_OPTION_GROUP` ADD FOREIGN KEY (`group_id`) REFERENCES `OPTION_GROUP` (`group_id`);
 ALTER TABLE `MENU_OPTION_GROUP` ADD FOREIGN KEY (`menu_id`) REFERENCES `MENU` (`menu_id`);
 ALTER TABLE `MENU_OPTION_GROUP` ADD FOREIGN KEY (`group_id`) REFERENCES `OPTION_GROUP` (`group_id`);
 ALTER TABLE `WISHLIST` ADD FOREIGN KEY (`member_id`) REFERENCES `MEMBER` (`member_id`);

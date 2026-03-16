@@ -303,7 +303,7 @@ public class MenuView {
 		while (true) {
 			System.out.println("\n--- [카테고리 관리] ---");
 			adminController.listCategories();
-			System.out.println("\n1. 추가 | 2. 삭제 | 3. 옵션 그룹 매핑 설정 | 0. 뒤로");
+			System.out.println("\n1. 추가 | 2. 삭제 | 0. 뒤로");
 			int sub = readInt("선택: ");
 
 			if (sub == 1) {
@@ -314,70 +314,10 @@ public class MenuView {
 				if (id == 0)
 					continue;
 				adminController.deleteCategory(id);
-			} else if (sub == 3) {
-				runCategoryOptionMapping(adminController);
 			} else if (sub == 0) {
 				break;
 			} else {
 				FailView.fail("잘못된 선택입니다.");
-			}
-		}
-	}
-
-	private void runCategoryOptionMapping(AdminController adminController) {
-		adminController.listCategories();
-		int categoryId = readInt("설정할 카테고리 ID (취소: 0): ");
-		if (categoryId == 0)
-			return;
-
-		while (true) {
-			model.Category category = adminController.getCategoryById(categoryId);
-			if (category == null) {
-				FailView.fail("존재하지 않는 카테고리입니다.");
-				break;
-			}
-
-			System.out.println("\n=== [" + category.getCategoryName() + "] 카테고리 옵션 설정 ===");
-			List<model.OptionGroup> currentGroups = category.getOptionGroups();
-			if (currentGroups == null || currentGroups.isEmpty()) {
-				System.out.println("  (현재 매핑된 옵션 그룹이 없습니다)");
-			} else {
-				System.out.println("  [현재 매핑된 목록]");
-				for (int i = 0; i < currentGroups.size(); i++) {
-					System.out.printf("  %d. %s\n", i + 1, currentGroups.get(i).getGroupName());
-				}
-			}
-
-			System.out.println("\n1. 옵션 그룹 추가 매핑 | 2. 옵션 그룹 매핑 삭제 | 0. 뒤로");
-			int sub = readInt("선택: ");
-
-			if (sub == 1) {
-				List<model.OptionGroup> allGroups = adminController.listOptionGroups();
-				int groupIdx = readInt("추가할 옵션 그룹 번호 (취소: 0): ");
-				if (groupIdx == 0)
-					continue;
-				if (groupIdx < 1 || groupIdx > allGroups.size()) {
-					FailView.fail("올바른 번호를 선택해 주세요.");
-					continue;
-				}
-				int displayOrder = readInt("표시 순서: ");
-				adminController.addOptionGroupToCategory(categoryId, allGroups.get(groupIdx - 1).getGroupId(),
-						displayOrder);
-			} else if (sub == 2) {
-				if (currentGroups == null || currentGroups.isEmpty()) {
-					FailView.fail("삭제할 매핑 정보가 없습니다.");
-					continue;
-				}
-				int groupIdx = readInt("삭제할 매핑 번호 (취소: 0): ");
-				if (groupIdx == 0)
-					continue;
-				if (groupIdx < 1 || groupIdx > currentGroups.size()) {
-					FailView.fail("목록에 있는 번호를 선택해 주세요.");
-					continue;
-				}
-				adminController.removeOptionGroupFromCategory(categoryId, currentGroups.get(groupIdx - 1).getGroupId());
-			} else if (sub == 0) {
-				break;
 			}
 		}
 	}

@@ -28,7 +28,7 @@ public class OptionGroupRepositoryImpl implements OptionGroupRepository {
 
     @Override
     public List<OptionGroup> findOptionGroupsWithOptionsByMenuId(long menuId) {
-        // 1. 메뉴별 전용 옵션 그룹 조회 시도
+        // 메뉴별 전용 옵션 그룹만 조회
         String menuSql = """
             SELECT
                 OG.group_id,
@@ -44,29 +44,7 @@ public class OptionGroupRepositoryImpl implements OptionGroupRepository {
             ORDER BY MOG.display_order, MO.display_order
             """;
 
-        List<OptionGroup> result = fetchGroupsFromSql(menuSql, menuId);
-
-        // 2. 메뉴별 옵션이 없으면 카테고리별 기본 옵션 조회
-        if (result.isEmpty()) {
-            String categorySql = """
-                SELECT
-                    OG.group_id,
-                    OG.group_name,
-                    MO.option_id,
-                    MO.option_name,
-                    MO.extra_price,
-                    MO.display_order AS option_order
-                FROM MENU M
-                INNER JOIN CATEGORY_OPTION_GROUP COG ON M.category_id = COG.category_id
-                INNER JOIN OPTION_GROUP OG ON OG.group_id = COG.group_id
-                LEFT JOIN MENU_OPTION MO ON MO.group_id = OG.group_id
-                WHERE M.menu_id = ?
-                ORDER BY COG.display_order, MO.display_order
-                """;
-            result = fetchGroupsFromSql(categorySql, menuId);
-        }
-
-        return result;
+        return fetchGroupsFromSql(menuSql, menuId);
     }
 
     private List<OptionGroup> fetchGroupsFromSql(String sql, long idParam) {

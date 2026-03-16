@@ -193,23 +193,7 @@ public class MenuRepositoryImpl implements MenuRepository {
 		} catch (SQLException ignored) {
 		}
 
-		// 2. 메뉴별 옵션이 없으면 카테고리별 기본 옵션 조회
-		if (groups.isEmpty()) {
-			String categorySql = "SELECT og.group_id, og.group_name " + "FROM CATEGORY_OPTION_GROUP cog "
-					+ "JOIN OPTION_GROUP og ON cog.group_id = og.group_id " + "WHERE cog.category_id = ? "
-					+ "ORDER BY cog.display_order";
-			try (PreparedStatement pstmt = conn.prepareStatement(categorySql)) {
-				pstmt.setInt(1, categoryId);
-				try (ResultSet rs = pstmt.executeQuery()) {
-					while (rs.next()) {
-						groups.add(new OptionGroup(rs.getLong("group_id"), rs.getString("group_name")));
-					}
-				}
-			} catch (SQLException ignored) {
-			}
-		}
-
-		// 3. 각 옵션 그룹에 속한 세부 옵션(MenuOption)들을 채워넣음
+		// 2. 각 옵션 그룹에 속한 세부 옵션(MenuOption)들을 채워넣음
 		for (OptionGroup group : groups) {
 			String optionSql = "SELECT * FROM MENU_OPTION WHERE group_id = ? ORDER BY display_order";
 			try (PreparedStatement pstmt = conn.prepareStatement(optionSql)) {
