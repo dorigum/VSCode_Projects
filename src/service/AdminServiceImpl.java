@@ -301,11 +301,11 @@ public class AdminServiceImpl implements AdminService {
 	}
 
 	// --- 통계 기능 ---
-	public int getTotalSales() {
+	public long getTotalSales() {
 		return orderRepository.getTotalSales();
 	}
 
-	public Map<String, Integer> getSalesByCategory() {
+	public Map<String, Long> getSalesByCategory() {
 		return orderRepository.getSalesByCategory();
 	}
 
@@ -313,11 +313,11 @@ public class AdminServiceImpl implements AdminService {
 		return orderRepository.getTopSellingMenus();
 	}
 
-	public Map<String, Integer> getDailySales() {
+	public Map<String, Long> getDailySales() {
 		return orderRepository.getDailySales();
 	}
 
-	public Map<String, Integer> getSalesByPeriod(String format) {
+	public Map<String, Long> getSalesByPeriod(String format) {
 		return orderRepository.getSalesByPeriod(format);
 	}
 
@@ -327,14 +327,14 @@ public class AdminServiceImpl implements AdminService {
 	}
 
 	@Override
-	public Map<Integer, Integer> getHourlySales() {
+	public Map<Integer, Long> getHourlySales() {
 		return orderRepository.getHourlySales();
 	}
 
 	@Override
-	public Map<String, Integer> getDayOfWeekSales() {
-		Map<String, Integer> rawStats = orderRepository.getDayOfWeekSales();
-		Map<String, Integer> koreanStats = new LinkedHashMap<>();
+	public Map<String, Long> getDayOfWeekSales() {
+		Map<String, Long> rawStats = orderRepository.getDayOfWeekSales();
+		Map<String, Long> koreanStats = new LinkedHashMap<>();
 		
 		// 영문 요일을 한글 요일로 매핑하여 정렬된 순서로 저장
 		String[][] mapping = {
@@ -343,7 +343,7 @@ public class AdminServiceImpl implements AdminService {
 		};
 
 		for (String[] pair : mapping) {
-			koreanStats.put(pair[1], rawStats.getOrDefault(pair[0], 0));
+			koreanStats.put(pair[1], rawStats.getOrDefault(pair[0], 0L));
 		}
 		return koreanStats;
 	}

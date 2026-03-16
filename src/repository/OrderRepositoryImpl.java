@@ -82,22 +82,23 @@ public class OrderRepositoryImpl implements OrderRepository {
         }
     }
 
-    public int getTotalSales() {
+    public long getTotalSales() {
         String sql = "SELECT SUM(total_amount) FROM ORDERS WHERE status = 'COMPLETED'";
         try (Connection conn = DBUtil.getConnection();
              Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
             if (rs.next()) {
-                return rs.getInt(1);
+                return rs.getLong(1);
             }
-            return 0;
+            return 0L;
         } catch (SQLException e) {
+            e.printStackTrace();
             throw new RepositoryException("총 매출 조회 중 오류가 발생했습니다.", e);
         }
     }
 
-    public Map<String, Integer> getSalesByCategory() {
-        Map<String, Integer> stats = new LinkedHashMap<>();
+    public Map<String, Long> getSalesByCategory() {
+        Map<String, Long> stats = new LinkedHashMap<>();
         String sql = "SELECT category_name_snapshot, SUM(unit_price * quantity) as sales "
                      + "FROM ORDER_ITEM oi "
                      + "JOIN ORDERS o ON oi.order_id = o.order_id "
@@ -109,7 +110,7 @@ public class OrderRepositoryImpl implements OrderRepository {
              Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
             while (rs.next()) {
-                stats.put(rs.getString("category_name_snapshot"), rs.getInt("sales"));
+                stats.put(rs.getString("category_name_snapshot"), rs.getLong("sales"));
             }
             return stats;
         } catch (SQLException e) {
@@ -138,12 +139,12 @@ public class OrderRepositoryImpl implements OrderRepository {
         }
     }
 
-    public Map<String, Integer> getDailySales() {
+    public Map<String, Long> getDailySales() {
         return getSalesByPeriod("%Y-%m-%d");
     }
 
-    public Map<String, Integer> getSalesByPeriod(String format) {
-        Map<String, Integer> stats = new LinkedHashMap<>();
+    public Map<String, Long> getSalesByPeriod(String format) {
+        Map<String, Long> stats = new LinkedHashMap<>();
         String sql = "SELECT DATE_FORMAT(order_date, ?) as period, SUM(total_amount) as total "
                      + "FROM ORDERS WHERE status = 'COMPLETED' "
                      + "GROUP BY period "
@@ -154,7 +155,7 @@ public class OrderRepositoryImpl implements OrderRepository {
             pstmt.setString(1, format);
             try (ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {
-                    stats.put(rs.getString("period"), rs.getInt("total"));
+                    stats.put(rs.getString("period"), rs.getLong("total"));
                 }
             }
             return stats;
@@ -175,8 +176,8 @@ public class OrderRepositoryImpl implements OrderRepository {
             pstmt.setString(2, endDate + " 23:59:59");
             try (ResultSet rs = pstmt.executeQuery()) {
                 if (rs.next()) {
-                    stats.put("count", rs.getInt("order_count"));
-                    stats.put("amount", rs.getInt("total_amount"));
+                    stats.put("count", rs.getLong("order_count"));
+                    stats.put("amount", rs.getLong("total_amount"));
                 }
             }
             return stats;
@@ -186,8 +187,8 @@ public class OrderRepositoryImpl implements OrderRepository {
     }
 
     @Override
-    public Map<Integer, Integer> getHourlySales() {
-        Map<Integer, Integer> stats = new LinkedHashMap<>();
+    public Map<Integer, Long> getHourlySales() {
+        Map<Integer, Long> stats = new LinkedHashMap<>();
         String sql = "SELECT HOUR(order_date) as hour, SUM(total_amount) as total "
                      + "FROM ORDERS WHERE status = 'COMPLETED' "
                      + "GROUP BY hour ORDER BY hour";
@@ -195,7 +196,7 @@ public class OrderRepositoryImpl implements OrderRepository {
              Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
             while (rs.next()) {
-                stats.put(rs.getInt("hour"), rs.getInt("total"));
+                stats.put(rs.getInt("hour"), rs.getLong("total"));
             }
             return stats;
         } catch (SQLException e) {
@@ -204,11 +205,11 @@ public class OrderRepositoryImpl implements OrderRepository {
     }
 
     @Override
-    public Map<String, Integer> getDayOfWeekSales() {
-        Map<String, Integer> stats = new LinkedHashMap<>();
+    public Map<String, Long> getDayOfWeekSales() {
+        Map<String, Long> stats = new LinkedHashMap<>();
         // 요일별 순서 보장을 위해 미리 키를 세팅 (월~일)
         String[] days = {"Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"};
-        for (String d : days) stats.put(d, 0);
+        for (String d : days) stats.put(d, 0L);
 
         String sql = "SELECT DAYNAME(order_date) as day, SUM(total_amount) as total "
                      + "FROM ORDERS WHERE status = 'COMPLETED' "
@@ -217,7 +218,7 @@ public class OrderRepositoryImpl implements OrderRepository {
              Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
             while (rs.next()) {
-                stats.put(rs.getString("day"), rs.getInt("total"));
+                stats.put(rs.getString("day"), rs.getLong("total"));
             }
             return stats;
         } catch (SQLException e) {
@@ -241,7 +242,7 @@ public class OrderRepositoryImpl implements OrderRepository {
                 while (rs.next()) {
                     Map<String, Object> map = new LinkedHashMap<>();
                     map.put("phone", rs.getString("phone"));
-                    map.put("total", rs.getInt("total_spent"));
+                    map.put("total", rs.getLong("total_spent"));
                     spenders.add(map);
                 }
             }

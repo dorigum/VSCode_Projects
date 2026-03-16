@@ -169,7 +169,7 @@ public final class EndView {
 		System.out.println("===============================");
 	}
 
-	public static void printDateSalesReport(String periodTitle, int totalSales, Map<String, Integer> periodSales) {
+	public static void printDateSalesReport(String periodTitle, long totalSales, Map<String, Long> periodSales) {
 		System.out.println("\n" + "=".repeat(40));
 		System.out.println("      📅 [" + periodTitle + "]      ");
 		System.out.println("=".repeat(40));
@@ -180,7 +180,7 @@ public final class EndView {
 			System.out.println("  - 데이터 없음");
 		} else {
 			periodSales.forEach((period, sales) -> {
-				int barLength = Math.min(30, Math.max(0, sales / 2000));
+				int barLength = (int) Math.min(30L, Math.max(0L, sales / 2000L));
 				String bar = "■".repeat(barLength);
 				System.out.printf("%12s | %-30s (%,d원)\n", period, bar, sales);
 			});
@@ -188,7 +188,7 @@ public final class EndView {
 		System.out.println("=".repeat(40));
 	}
 
-	public static void printCategorySalesReport(Map<String, Integer> categorySales) {
+	public static void printCategorySalesReport(Map<String, Long> categorySales) {
 		System.out.println("\n" + "=".repeat(40));
 		System.out.println("      📂 [카테고리별 매출 분석]      ");
 		System.out.println("=".repeat(40));
@@ -196,7 +196,7 @@ public final class EndView {
 		if (categorySales == null || categorySales.isEmpty()) {
 			System.out.println("  - 데이터 없음");
 		} else {
-			int total = categorySales.values().stream().mapToInt(Integer::intValue).sum();
+			long total = categorySales.values().stream().mapToLong(Long::longValue).sum();
 			categorySales.forEach((cat, sales) -> {
 				double percent = (total > 0) ? (sales * 100.0 / total) : 0;
 				int barLength = (int) (percent / 3);
@@ -233,10 +233,10 @@ public final class EndView {
 		if (stats == null || stats.isEmpty()) {
 			System.out.println("  - 해당 기간의 데이터가 없습니다.");
 		} else {
-			System.out.printf("  총 주문 건수 : %,d건\n", (Integer) stats.getOrDefault("count", 0));
-			System.out.printf("  총 매출 금액 : %,d원\n", (Integer) stats.getOrDefault("amount", 0));
-			int count = (Integer) stats.getOrDefault("count", 0);
-			int amount = (Integer) stats.getOrDefault("amount", 0);
+			System.out.printf("  총 주문 건수 : %,d건\n", ((Number) stats.getOrDefault("count", 0L)).longValue());
+			System.out.printf("  총 매출 금액 : %,d원\n", ((Number) stats.getOrDefault("amount", 0L)).longValue());
+			long count = ((Number) stats.getOrDefault("count", 0L)).longValue();
+			long amount = ((Number) stats.getOrDefault("amount", 0L)).longValue();
 			if (count > 0) {
 				System.out.printf("  객단가(AVG) : %,d원\n", amount / count);
 			}
@@ -244,17 +244,17 @@ public final class EndView {
 		System.out.println("=".repeat(40));
 	}
 
-	public static void printHourlySalesReport(Map<Integer, Integer> hourlySales) {
+	public static void printHourlySalesReport(Map<Integer, Long> hourlySales) {
 		System.out.println("\n" + "=".repeat(40));
 		System.out.println("      🕒 [시간대별 매출 분석]      ");
 		System.out.println("=".repeat(40));
 		if (hourlySales == null || hourlySales.isEmpty()) {
 			System.out.println("  - 데이터 없음");
 		} else {
-			int maxSales = hourlySales.values().stream().mapToInt(Integer::intValue).max().orElse(1);
+			long maxSales = hourlySales.values().stream().mapToLong(Long::longValue).max().orElse(1L);
 			for (int hour = 0; hour < 24; hour++) {
-				int sales = hourlySales.getOrDefault(hour, 0);
-				int barLength = (sales * 25 / maxSales);
+				long sales = hourlySales.getOrDefault(hour, 0L);
+				int barLength = (int) (sales * 25 / maxSales);
 				String bar = "■".repeat(barLength);
 				System.out.printf("  %02d시 | %-25s (%,d원)\n", hour, bar, sales);
 			}
@@ -262,16 +262,16 @@ public final class EndView {
 		System.out.println("=".repeat(40));
 	}
 
-	public static void printDayOfWeekSalesReport(Map<String, Integer> daySales) {
+	public static void printDayOfWeekSalesReport(Map<String, Long> daySales) {
 		System.out.println("\n" + "=".repeat(40));
 		System.out.println("      📅 [요일별 매출 분석]      ");
 		System.out.println("=".repeat(40));
 		if (daySales == null || daySales.isEmpty()) {
 			System.out.println("  - 데이터 없음");
 		} else {
-			int maxSales = daySales.values().stream().mapToInt(Integer::intValue).max().orElse(1);
+			long maxSales = daySales.values().stream().mapToLong(Long::longValue).max().orElse(1L);
 			daySales.forEach((day, sales) -> {
-				int barLength = (sales * 25 / maxSales);
+				int barLength = (int) (sales * 25 / maxSales);
 				String bar = "■".repeat(barLength);
 				System.out.printf(" %-4s | %-25s (%,d원)\n", day, bar, sales);
 			});

@@ -264,8 +264,8 @@ public class AdminController {
 
     public void showDateStatistics(String periodTitle, String format) {
         try {
-            int totalSales = adminService.getTotalSales();
-            Map<String, Integer> periodSales = adminService.getSalesByPeriod(format);
+            long totalSales = adminService.getTotalSales();
+            Map<String, Long> periodSales = adminService.getSalesByPeriod(format);
 
             if ("%Y-%u주".equals(format)) {
                 periodSales = formatWeekData(periodSales);
@@ -279,7 +279,7 @@ public class AdminController {
 
     public void showCategoryStatistics() {
         try {
-            Map<String, Integer> categorySales = adminService.getSalesByCategory();
+            Map<String, Long> categorySales = adminService.getSalesByCategory();
             EndView.printCategorySalesReport(categorySales);
         } catch (CafeKioskException e) {
             FailView.fail(e.getMessage());
@@ -306,7 +306,7 @@ public class AdminController {
 
     public void showHourlySalesStatistics() {
         try {
-            Map<Integer, Integer> hourlySales = adminService.getHourlySales();
+            Map<Integer, Long> hourlySales = adminService.getHourlySales();
             EndView.printHourlySalesReport(hourlySales);
         } catch (CafeKioskException e) {
             FailView.fail(e.getMessage());
@@ -315,7 +315,7 @@ public class AdminController {
 
     public void showDayOfWeekStatistics() {
         try {
-            Map<String, Integer> daySales = adminService.getDayOfWeekSales();
+            Map<String, Long> daySales = adminService.getDayOfWeekSales();
             EndView.printDayOfWeekSalesReport(daySales);
         } catch (CafeKioskException e) {
             FailView.fail(e.getMessage());
@@ -325,8 +325,8 @@ public class AdminController {
     public void showIntegratedPeakTimeStatistics() {
         try {
             System.out.println("\n[📊 통합 피크타임 매출 분석 리포트]");
-            Map<Integer, Integer> hourlySales = adminService.getHourlySales();
-            Map<String, Integer> daySales = adminService.getDayOfWeekSales();
+            Map<Integer, Long> hourlySales = adminService.getHourlySales();
+            Map<String, Long> daySales = adminService.getDayOfWeekSales();
             
             EndView.printHourlySalesReport(hourlySales);
             EndView.printDayOfWeekSalesReport(daySales);
@@ -352,9 +352,9 @@ public class AdminController {
         }
     }
 
-    private Map<String, Integer> formatWeekData(Map<String, Integer> periodSales) {
-        Map<String, Integer> formattedSales = new java.util.LinkedHashMap<>();
-        for (Map.Entry<String, Integer> entry : periodSales.entrySet()) {
+    private Map<String, Long> formatWeekData(Map<String, Long> periodSales) {
+        Map<String, Long> formattedSales = new java.util.LinkedHashMap<>();
+        for (Map.Entry<String, Long> entry : periodSales.entrySet()) {
             String key = entry.getKey();
             try {
                 String[] parts = key.replace("주", "").split("-");
