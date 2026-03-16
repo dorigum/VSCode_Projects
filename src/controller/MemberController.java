@@ -6,10 +6,13 @@ import exception.CafeKioskException;
 import exception.ValidationException;
 import model.Member;
 import model.Order;
+import model.OrderItem;
 import model.PointHistory;
 import service.MemberService;
 import view.EndView;
 import view.FailView;
+import model.Menu;
+import java.util.List;
 
 public class MemberController {
 	private final MemberService memberService;
@@ -89,9 +92,50 @@ public class MemberController {
 		}
 	}
 
-	public void showQuickOrder(Member member) {
+	public List<OrderItem> showQuickOrder(Member member) {
 		try {
-			EndView.printQuickOrder(member, memberService.getQuickOrder(member));
+			Order quickOrder = memberService.getQuickOrder(member);
+			EndView.printQuickOrder(member, quickOrder);
+
+			if (quickOrder == null || quickOrder.getItems() == null || quickOrder.getItems().isEmpty()) {
+				return null;
+			}
+
+			System.out.print("이 주문으로 바로 주문하시겠습니까? (Y/N): ");
+			String input = new java.util.Scanner(System.in).nextLine().trim();
+			if ("Y".equalsIgnoreCase(input)) {
+				return quickOrder.getItems();
+			}
+			return null;
+
+		} catch (CafeKioskException e) {
+			FailView.fail(e.getMessage());
+			return null;
+		}
+	}
+
+	public void register(String phone, String password, int age, int preferredCategoryId) {
+		try {
+			memberService.register(phone, password, age, preferredCategoryId);
+			EndView.success("회원가입이 완료되었습니다!");
+		} catch (CafeKioskException e) {
+			FailView.fail(e.getMessage());
+		}
+	}
+
+	public List<Menu> getRecommendedMenus(Member member) {
+		try {
+			return memberService.getRecommendedMenus(member.getPreferredCategoryId());
+		} catch (CafeKioskException e) {
+			FailView.fail(e.getMessage());
+			return null;
+		}
+	}
+
+	public void updatePreferredCategory(Member member, int categoryId) {
+		try {
+			memberService.updatePreferredCategory(member.getMemberId(), categoryId);
+			EndView.success("선호 카테고리가 변경되었습니다!");
 		} catch (CafeKioskException e) {
 			FailView.fail(e.getMessage());
 		}

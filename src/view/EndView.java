@@ -48,21 +48,20 @@ public final class EndView {
 			String memberInfo = order.getMemberPhone() != null ? order.getMemberPhone() : "비회원";
 
 			// 헤더 정보 (상태, ID, 주문자, 총액, 시간)
-			System.out.printf("%s %-11s | 주문ID: %3d | 주문자: %-13s | 총액: %,7d원\n",
-					statusIcon, statusText, order.getOrderId(), memberInfo, order.getTotalAmount());
+			System.out.printf("%s %-11s | 주문ID: %3d | 주문자: %-13s | 총액: %,7d원\n", statusIcon, statusText,
+					order.getOrderId(), memberInfo, order.getTotalAmount());
 			System.out.printf("   주문 시간: %s\n", order.getOrderDate());
 
 			// 상세 메뉴 정보
 			if (order.getItems() != null && !order.getItems().isEmpty()) {
 				for (OrderItem item : order.getItems()) {
-					System.out.printf("   └─ %-15s %d개 (단가: %,d원)\n", 
-							item.getMenuNameSnapshot(), item.getQuantity(), item.getUnitPrice());
-					
+					System.out.printf("   └─ %-15s %d개 (단가: %,d원)\n", item.getMenuNameSnapshot(), item.getQuantity(),
+							item.getUnitPrice());
+
 					// 선택된 세부 옵션 정보 출력
 					List<MenuOption> options = item.getOptions();
 					if (options != null && !options.isEmpty()) {
-						String optionStr = options.stream()
-								.map(MenuOption::getOptionName)
+						String optionStr = options.stream().map(MenuOption::getOptionName)
 								.collect(java.util.stream.Collectors.joining(", "));
 						System.out.printf("      [선택 옵션: %s]\n", optionStr);
 					}
@@ -101,18 +100,24 @@ public final class EndView {
 		System.out.printf("▶ 현재 보유 포인트: %,d원\n", member.getPointBalance());
 	}
 
-	public static void printQuickOrder(Member member, List<OrderItem> orderItems) {
+	public static void printQuickOrder(Member member, Order order) {
 		System.out.println("\n===== 퀵오더 조회 =====");
 		System.out.println(member.getPhone() + "님의 최근 주문 정보입니다.");
-		if (orderItems == null || orderItems.isEmpty()) {
+		if (order == null || order.getItems() == null || order.getItems().isEmpty()) {
 			System.out.println("이전 주문 내역이 없어 퀵오더를 사용할 수 없습니다.");
 			return;
 		}
 
 		int total = 0;
-		for (OrderItem item : orderItems) {
+		for (OrderItem item : order.getItems()) {
 			System.out.printf("- %-15s %d개 x %,d원\n", item.getMenuNameSnapshot(), item.getQuantity(),
 					item.getUnitPrice());
+			// 옵션 출력
+			if (item.getOptions() != null && !item.getOptions().isEmpty()) {
+				for (MenuOption opt : item.getOptions()) {
+					System.out.printf("    └─ %s\n", opt.getOptionName());
+				}
+			}
 			total += item.getQuantity() * item.getUnitPrice();
 		}
 		System.out.printf("합계: %,d원\n", total);
@@ -343,12 +348,8 @@ public final class EndView {
 			int itemTotal = item.getQuantity() * item.getUnitPrice();
 			total += itemTotal;
 
-			System.out.printf("%d. %s (%d개) - 단가: %,d원, 금액: %,d원%n",
-					i + 1,
-					item.getMenuNameSnapshot(),
-					item.getQuantity(),
-					item.getUnitPrice(),
-					itemTotal);
+			System.out.printf("%d. %s (%d개) - 단가: %,d원, 금액: %,d원%n", i + 1, item.getMenuNameSnapshot(),
+					item.getQuantity(), item.getUnitPrice(), itemTotal);
 
 			if (item.getCategoryNameSnapshot() != null && !item.getCategoryNameSnapshot().isBlank()) {
 				System.out.printf("   카테고리: %s%n", item.getCategoryNameSnapshot());
@@ -432,7 +433,8 @@ public final class EndView {
 		if (options != null) {
 			for (int i = 0; i < options.size(); i++) {
 				MenuOption option = options.get(i);
-				String selectedMark = selection.isSelected(optionGroup.getGroupId(), option.getOptionId()) ? "(선택)" : "";
+				String selectedMark = selection.isSelected(optionGroup.getGroupId(), option.getOptionId()) ? "(선택)"
+						: "";
 				formattedOptions.add(option.getOptionName() + ":" + (i + 1) + selectedMark);
 			}
 		}

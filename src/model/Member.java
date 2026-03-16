@@ -10,6 +10,7 @@ public class Member {
 	private int pointBalance;
 	private String role; // USER / ADMIN
 	private Date createdAt;
+	private int preferredCategoryId;
 
 	// DB 조회 및 전체 생성용
 	public Member(long memberId, String phone, String password, int age, int pointBalance, String role,
@@ -63,6 +64,14 @@ public class Member {
 
 	public Date getCreatedAt() {
 		return createdAt;
+	}
+
+	public int getPreferredCategoryId() {
+		return preferredCategoryId;
+	}
+
+	public void setPreferredCategoryId(int preferredCategoryId) {
+		this.preferredCategoryId = preferredCategoryId;
 	}
 
 	@Override

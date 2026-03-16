@@ -13,18 +13,24 @@ import repository.WishlistRepository;
 import repository.QuickOrderRepository;
 import java.util.List;
 import model.Order;
+import model.Menu;
+import repository.MenuRepository;
+import repository.MenuRepositoryImpl;
+import java.util.ArrayList;
 
 public class MemberServiceImpl implements MemberService {
 	private final MemberRepository memberRepository;
 	private final WishlistRepository wishlistRepository;
 	private final QuickOrderRepository quickOrderRepository;
+	private final MenuRepository menuRepository;
 
 	public MemberServiceImpl() {
-		this(new MemberRepositoryImpl(), new WishlistRepository(), new QuickOrderRepository());
+		this(new MemberRepositoryImpl(), new WishlistRepository(), new QuickOrderRepository(),
+				new MenuRepositoryImpl());
 	}
 
 	public MemberServiceImpl(MemberRepository memberRepository, WishlistRepository wishlistRepository,
-			QuickOrderRepository quickOrderRepository) {
+			QuickOrderRepository quickOrderRepository, MenuRepository menuRepository) {
 		if (memberRepository == null) {
 			throw new ValidationException("MemberRepository는 null일 수 없습니다.");
 		}
@@ -37,6 +43,7 @@ public class MemberServiceImpl implements MemberService {
 		this.memberRepository = memberRepository;
 		this.wishlistRepository = wishlistRepository;
 		this.quickOrderRepository = quickOrderRepository;
+		this.menuRepository = menuRepository;
 	}
 
 	@Override
@@ -160,14 +167,52 @@ public class MemberServiceImpl implements MemberService {
 	}
 
 	@Override
-	public List<OrderItem> getQuickOrder(Member member) {
+	public Order getQuickOrder(Member member) {
 		validateMember(member);
-		return quickOrderRepository.getLastOrderItems(member.getMemberId());
+		return quickOrderRepository.getRecentOrder(member.getMemberId());
 	}
 
 	private void validateMember(Member member) {
 		if (member == null) {
 			throw new ValidationException("회원 정보가 유효하지 않습니다.");
 		}
+	}
+
+	@Override
+	public boolean register(String phone, String password, int age, int preferredCategoryId) {
+		if (phone == null || !phone.matches("^010-\\d{4}-\\d{4}$")) {
+			throw new ValidationException("전화번호 형식이 올바르지 않습니다. (예: 010-1234-5678)");
+		}
+		if (password == null || password.length() < 4) {
+			throw new ValidationException("비밀번호는 4자리 이상이어야 합니다.");
+		}
+		if (memberRepository.isPhoneExists(phone)) {
+			throw new ConflictException("이미 가입된 전화번호입니다.");
+		}
+		Member member = new Member(phone, password, age);
+		member.setPreferredCategoryId(preferredCategoryId);
+		boolean result = memberRepository.register(member);
+		if (!result) {
+			throw new BusinessRuleException("회원가입에 실패했습니다.");
+		}
+		return true;
+	}
+
+	@Override
+	public List<Menu> getRecommendedMenus(int categoryId) {
+		if (categoryId <= 0)
+			return new ArrayList<>();
+		List<Menu> all = menuRepository.getMenusByCategoryId(categoryId);
+		if (all.size() <= 3)
+			return all;
+
+		// 랜덤 3개 추출
+		java.util.Collections.shuffle(all);
+		return all.subList(0, 3);
+	}
+
+	@Override
+	public void updatePreferredCategory(long memberId, int categoryId) {
+		memberRepository.updatePreferredCategory(memberId, categoryId);
 	}
 }
