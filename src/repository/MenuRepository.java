@@ -13,6 +13,8 @@ public interface MenuRepository {
 
 	boolean deleteMenu(long id);
 
+	boolean updateMenu(Menu menu);
+
 	List<Menu> getMenusByCategoryName(String categoryName);
 
 	List<Menu> getMenusByCategoryId(int categoryId);

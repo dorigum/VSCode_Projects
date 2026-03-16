@@ -11,7 +11,11 @@ public interface AdminService {
 
     List<Menu> getMenuList();
 
+    void updateMenu(long menuId, int categoryId, String name, int price, String description, boolean isAvailable);
+
     void deleteMenu(long id);
+
+    void addOptionGroupToMenu(long menuId, long groupId, int displayOrder);
 
     // 카테고리 관리
     void addCategory(String name);

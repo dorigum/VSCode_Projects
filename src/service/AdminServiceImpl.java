@@ -88,10 +88,48 @@ public class AdminServiceImpl implements AdminService {
 		return menuRepository.getAllMenus();
 	}
 
+	@Override
+	public void updateMenu(long menuId, int categoryId, String name, int price, String description, boolean isAvailable) {
+		if (name == null || name.trim().isEmpty()) {
+			throw new ValidationException("메뉴명은 비어 있을 수 없습니다.");
+		}
+		if (price <= 0) {
+			throw new ValidationException("가격은 1원 이상이어야 합니다.");
+		}
+		
+		Menu existingMenu = menuRepository.findById(menuId);
+		if (existingMenu == null) {
+			throw new NotFoundException("수정할 메뉴가 존재하지 않습니다.");
+		}
+
+		Category category = categoryRepository.getCategoryById(categoryId);
+		if (category == null) {
+			throw new NotFoundException("존재하지 않는 카테고리 ID입니다.");
+		}
+
+		Menu updatedMenu = new Menu(menuId, categoryId, category.getCategoryName(), name.trim(), price, 
+				description == null ? "" : description.trim(), isAvailable, existingMenu.getCreatedAt());
+
+		if (!menuRepository.updateMenu(updatedMenu)) {
+			throw new BusinessRuleException("메뉴 정보 수정에 실패했습니다.");
+		}
+	}
+
 	public void deleteMenu(long id) {
 		if (!menuRepository.deleteMenu(id)) {
 			throw new NotFoundException("삭제할 메뉴가 없습니다.");
 		}
+	}
+
+	@Override
+	public void addOptionGroupToMenu(long menuId, long groupId, int displayOrder) {
+		Menu menu = menuRepository.findById(menuId);
+		if (menu == null) throw new NotFoundException("메뉴를 찾을 수 없습니다.");
+		
+		OptionGroup group = optionGroupRepository.findById(groupId);
+		if (group == null) throw new NotFoundException("옵션 그룹을 찾을 수 없습니다.");
+
+		menuRepository.addOptionGroupToMenu(menuId, groupId, displayOrder);
 	}
 
 	// --- 카테고리 관리 ---

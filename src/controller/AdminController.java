@@ -97,10 +97,32 @@ public class AdminController {
         }
     }
 
+    public void updateMenu(long menuId, int categoryId, String name, int price, String description, boolean isAvailable) {
+        try {
+            adminService.updateMenu(menuId, categoryId, name, price, description, isAvailable);
+            EndView.success("메뉴 정보가 수정되었습니다.");
+        } catch (CafeKioskException e) {
+            FailView.fail(e.getMessage());
+        }
+    }
+
     public void deleteMenu(long id) {
         try {
             adminService.deleteMenu(id);
             EndView.success("메뉴가 삭제되었습니다.");
+        } catch (CafeKioskException e) {
+            FailView.fail(e.getMessage());
+        }
+    }
+
+    public void addOptionGroupToMenu(long menuId, long groupId, int displayOrder) {
+        try {
+            // AdminService에 해당 메서드가 이미 있다고 가정 (기존에 메뉴 등록 시 사용됨)
+            // 확인 결과 AdminService 인터페이스에는 없으므로 추가 필요할 수 있음
+            // 하지만 AdminServiceImpl에서는 menuRepository.addOptionGroupToMenu를 직접 호출할 수 있으므로
+            // 여기서는 편의상 repository를 직접 사용하거나 service에 위임하는 메서드를 추가합니다.
+            adminService.addOptionGroupToMenu(menuId, groupId, displayOrder);
+            EndView.success("메뉴에 옵션 그룹이 성공적으로 연결되었습니다.");
         } catch (CafeKioskException e) {
             FailView.fail(e.getMessage());
         }

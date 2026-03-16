@@ -83,6 +83,22 @@ public class MenuRepositoryImpl implements MenuRepository {
 	}
 
 	@Override
+	public boolean updateMenu(Menu menu) {
+		String sql = "UPDATE MENU SET category_id = ?, menu_name = ?, price = ?, description = ?, is_available = ? WHERE menu_id = ?";
+		try (Connection conn = DBUtil.getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
+			pstmt.setInt(1, menu.getCategoryId());
+			pstmt.setString(2, menu.getMenuName());
+			pstmt.setInt(3, menu.getPrice());
+			pstmt.setString(4, menu.getDescription());
+			pstmt.setInt(5, menu.isAvailable() ? 1 : 0);
+			pstmt.setLong(6, menu.getMenuId());
+			return pstmt.executeUpdate() > 0;
+		} catch (SQLException e) {
+			throw new RepositoryException("메뉴 수정 중 오류가 발생했습니다.", e);
+		}
+	}
+
+	@Override
 	public List<Menu> getMenusByCategoryName(String categoryName) {
 		List<Menu> menus = new ArrayList<>();
 		String sql = "SELECT m.*, c.category_name " + "FROM MENU m "

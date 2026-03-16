@@ -386,7 +386,7 @@ public class MenuView {
 		while (true) {
 			System.out.println("\n--- [메뉴 정보 관리] ---");
 			adminController.listMenus();
-			System.out.println("\n1. 등록 | 2. 삭제 | 0. 뒤로");
+			System.out.println("\n1. 등록 | 2. 수정 | 3. 삭제 | 4. 메뉴별 전용 옵션 설정 | 0. 뒤로");
 			int sub = readInt("선택: ");
 
 			if (sub == 1) {
@@ -403,15 +403,52 @@ public class MenuView {
 						break;
 				}
 			} else if (sub == 2) {
+				long menuId = readLong("수정할 메뉴 ID (취소: 0): ");
+				if (menuId == 0) continue;
+				
+				// 기존 메뉴 정보를 가져오는 로직 (AdminController에 추가 필요할 수 있음)
+				// 여기서는 간단히 새로 입력받는 방식으로 구현
+				adminController.listCategories();
+				int categoryId = readInt("새 카테고리 ID: ");
+				String name = readText("새 메뉴명: ");
+				int price = readInt("새 가격: ");
+				String description = readText("새 설명: ");
+				System.out.print("판매 가능 여부 (1. 가능, 0. 품절): ");
+				boolean isAvailable = readInt("") == 1;
+				
+				adminController.updateMenu(menuId, categoryId, name, price, description, isAvailable);
+			} else if (sub == 3) {
 				long menuId = readLong("삭제할 메뉴의 ID 번호를 입력하세요 (취소: 0): ");
 				if (menuId == 0)
 					continue;
 				adminController.deleteMenu(menuId);
+			} else if (sub == 4) {
+				runMenuOptionMapping(adminController);
 			} else if (sub == 0) {
 				break;
 			} else {
 				FailView.fail("잘못된 선택입니다.");
 			}
+		}
+	}
+
+	private void runMenuOptionMapping(AdminController adminController) {
+		while (true) {
+			System.out.println("\n--- [메뉴별 전용 옵션 설정] ---");
+			System.out.println("팁: 특정 메뉴에만 적용할 옵션 그룹(예: 에이드의 'ICE 전용 온도')을 연결할 때 사용하세요.");
+			adminController.listMenus();
+			long menuId = readLong("설정할 메뉴 ID (취소: 0): ");
+			if (menuId == 0) break;
+
+			System.out.println("\n1. 옵션 그룹 연결 추가 | 2. 옵션 그룹 연결 삭제 | 0. 뒤로");
+			int sub = readInt("선택: ");
+			if (sub == 1) {
+				List<model.OptionGroup> allGroups = adminController.listOptionGroups();
+				int groupIdx = readInt("연결할 옵션 그룹 번호: ");
+				if (groupIdx < 1 || groupIdx > allGroups.size()) continue;
+				int order = readInt("표시 순서: ");
+				adminController.addOptionGroupToMenu(menuId, allGroups.get(groupIdx-1).getGroupId(), order);
+			} else if (sub == 0) break;
 		}
 	}
 
