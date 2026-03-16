@@ -143,6 +143,13 @@ public class MenuServiceImpl implements MenuService {
             throw new ValidationException("보유 포인트를 초과해 사용할 수 없습니다.");
         }
 
-        return orderRepository.placeOrder(orderItems, member, pointUsed);
+        int orderId = orderRepository.placeOrder(orderItems, member, pointUsed);
+
+        if (orderId > 0 && member != null) {
+            int pointEarned = Math.max(0, (totalAmount - pointUsed) / 10);
+            member.setPointBalance(member.getPointBalance() - pointUsed + pointEarned);
+        }
+
+        return orderId;
     }
 }
