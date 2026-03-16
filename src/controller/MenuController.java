@@ -89,4 +89,13 @@ public class MenuController {
         }
         return menu.getCategoryName() == null ? "" : menu.getCategoryName();
     }
+
+    public List<Menu> getRecommendedMenus(Member member) {
+    try {
+        return menuService.getRecommendedMenus(member.getPreferredCategoryId());
+    } catch (CafeKioskException e) {
+        FailView.fail(e.getMessage());
+        return null;
+    }
+	}
 }

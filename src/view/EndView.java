@@ -81,12 +81,15 @@ public final class EndView {
 	}
 
 	public static void printOrderHistory(Member member, List<Order> orders) {
-		System.out.println("\n===== " + member.getPhone() + "님의 주문 내역 =====");
+		System.out.println("\n===============================");
+		System.out.printf("  %s님의 주문 내역%n", member.getPhone());
+		System.out.println("===============================");
 		if (orders == null || orders.isEmpty()) {
-			System.out.println("주문 내역이 없습니다.");
-			return;
+			System.out.println("  주문 내역이 없습니다.");
+		} else {
+			orders.forEach(System.out::println);
 		}
-		orders.forEach(System.out::println);
+		System.out.println("===============================");
 	}
 
 	public static void printPointHistory(Member member, List<PointHistory> history) {
@@ -101,35 +104,42 @@ public final class EndView {
 	}
 
 	public static void printQuickOrder(Member member, Order order) {
-		System.out.println("\n===== 퀵오더 조회 =====");
-		System.out.println(member.getPhone() + "님의 최근 주문 정보입니다.");
-		if (order == null || order.getItems() == null || order.getItems().isEmpty()) {
-			System.out.println("이전 주문 내역이 없어 퀵오더를 사용할 수 없습니다.");
-			return;
-		}
-
-		int total = 0;
-		for (OrderItem item : order.getItems()) {
-			System.out.printf("- %-15s %d개 x %,d원\n", item.getMenuNameSnapshot(), item.getQuantity(),
-					item.getUnitPrice());
-			// 옵션 출력
-			if (item.getOptions() != null && !item.getOptions().isEmpty()) {
-				for (MenuOption opt : item.getOptions()) {
-					System.out.printf("    └─ %s\n", opt.getOptionName());
-				}
-			}
-			total += item.getQuantity() * item.getUnitPrice();
-		}
-		System.out.printf("합계: %,d원\n", total);
+	    System.out.println("\n===============================");
+	    System.out.println("         퀵오더 조회           ");
+	    System.out.println("===============================");
+	    System.out.printf ("  %s님의 최근 주문입니다.%n", member.getPhone());
+	    System.out.println("-------------------------------");
+	    if (order == null || order.getItems() == null || order.getItems().isEmpty()) {
+	        System.out.println("  이전 주문 내역이 없습니다.");
+	        System.out.println("===============================");
+	        return;
+	    }
+	    int total = 0;
+	    for (OrderItem item : order.getItems()) {
+	        System.out.printf("  - %-15s %d개 x %,d원%n",
+	            item.getMenuNameSnapshot(), item.getQuantity(), item.getUnitPrice());
+	        if (item.getOptions() != null && !item.getOptions().isEmpty()) {
+	            for (MenuOption opt : item.getOptions()) {
+	                System.out.printf("      └ %s%n", opt.getOptionName());
+	            }
+	        }
+	        total += item.getQuantity() * item.getUnitPrice();
+	    }
+	    System.out.println("-------------------------------");
+	    System.out.printf ("  합계: %,d원%n", total);
+	    System.out.println("===============================");
 	}
 
 	public static void printLoginSuccess(Member member) {
+		System.out.println("\n===============================");
 		if ("ADMIN".equals(member.getRole())) {
-			System.out.println("\n[관리자 모드] 환영합니다, " + member.getPhone() + " 관리자님.");
+			System.out.println("  관리자 모드로 로그인되었습니다.");
+			System.out.printf("  %s 관리자님, 환영합니다.%n", member.getPhone());
 		} else {
-			System.out.println("\n로그인 성공! 환영합니다, " + member.getPhone() + "님.");
-			System.out.printf("보유 포인트: %,d원\n", member.getPointBalance());
+			System.out.printf("  환영합니다, %s님!%n", member.getPhone());
+			System.out.printf("  보유 포인트: %,d원%n", member.getPointBalance());
 		}
+		System.out.println("===============================");
 	}
 
 	public static void printDateSalesReport(String periodTitle, int totalSales, Map<String, Integer> periodSales) {

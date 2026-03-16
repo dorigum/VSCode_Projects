@@ -15,6 +15,8 @@ public interface MenuService {
 
     List<Menu> getLatestMenus();
 
+    List<Menu> getRecommendedMenus(int categoryId);
+
     List<OptionGroup> getOptionGroups(Menu menu);
 
     List<MenuOption> getOptionsByGroup(OptionGroup optionGroup);

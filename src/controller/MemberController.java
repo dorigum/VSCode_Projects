@@ -105,15 +105,6 @@ public class MemberController {
 		}
 	}
 
-	public List<Menu> getRecommendedMenus(Member member) {
-		try {
-			return memberService.getRecommendedMenus(member.getPreferredCategoryId());
-		} catch (CafeKioskException e) {
-			FailView.fail(e.getMessage());
-			return null;
-		}
-	}
-
 	public void updatePreferredCategory(Member member, int categoryId) {
 		try {
 			memberService.updatePreferredCategory(member.getMemberId(), categoryId);

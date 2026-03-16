@@ -210,18 +210,6 @@ public class MemberServiceImpl implements MemberService {
 		return true;
 	}
 
-	@Override
-	public List<Menu> getRecommendedMenus(int categoryId) {
-		if (categoryId <= 0)
-			return new ArrayList<>();
-		List<Menu> all = menuRepository.getMenusByCategoryId(categoryId);
-		if (all.size() <= 3)
-			return all;
-
-		// 랜덤 3개 추출
-		java.util.Collections.shuffle(all);
-		return all.subList(0, 3);
-	}
 
 	@Override
 	public void updatePreferredCategory(long memberId, int categoryId) {
