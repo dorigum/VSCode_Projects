@@ -19,6 +19,7 @@ public class OrderRepositoryImpl implements OrderRepository {
         String insertOrderItemSql = "INSERT INTO ORDER_ITEM (order_id, menu_id, quantity, unit_price, menu_name_snapshot, category_name_snapshot) VALUES (?, ?, ?, ?, ?, ?)";
         String insertOrderItemOptionSql = "INSERT INTO ORDER_ITEM_OPTION (order_item_id, option_id) VALUES (?, ?)";
         String updateMemberPointSql = "UPDATE MEMBER SET point_balance = point_balance - ? + ? WHERE member_id = ?";
+        String insertPointHistorySql = "INSERT INTO POINT_HISTORY (member_id, amount, reason) VALUES (?, ?, ?)";
 
         Connection conn = null;
         try {
@@ -34,8 +35,18 @@ public class OrderRepositoryImpl implements OrderRepository {
                 insertOrderItemOptions(conn, insertOrderItemOptionSql, orderItemId, orderItem.getOptions());
             }
 
-            if (member != null && (pointUsed > 0 || pointEarned > 0)) {
-                updateMemberPoint(conn, updateMemberPointSql, member.getMemberId(), pointUsed, pointEarned);
+            if (member != null) {
+                if (pointUsed > 0 || pointEarned > 0) {
+                    updateMemberPoint(conn, updateMemberPointSql, member.getMemberId(), pointUsed, pointEarned);
+                }
+                
+                // 포인트 히스토리 기록
+                if (pointUsed > 0) {
+                    savePointHistory(conn, insertPointHistorySql, member.getMemberId(), -pointUsed, "주문 시 포인트 사용 (주문번호: " + orderId + ")");
+                }
+                if (pointEarned > 0) {
+                    savePointHistory(conn, insertPointHistorySql, member.getMemberId(), pointEarned, "주문 결제 적립 (주문번호: " + orderId + ")");
+                }
             }
 
             conn.commit();
@@ -46,6 +57,28 @@ public class OrderRepositoryImpl implements OrderRepository {
             throw new RepositoryException("주문 처리 중 오류가 발생했습니다.", e);
         } finally {
             closeConnection(conn);
+        }
+    }
+
+    private void savePointHistory(Connection conn, String sql, long memberId, int amount, String reason) throws SQLException {
+        // 테이블 존재 보장 (필요시)
+        String checkSql = "CREATE TABLE IF NOT EXISTS POINT_HISTORY (" +
+                "history_id INT AUTO_INCREMENT PRIMARY KEY, " +
+                "member_id BIGINT NOT NULL, " +
+                "amount INT NOT NULL, " +
+                "reason VARCHAR(255) NOT NULL, " +
+                "created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, " +
+                "FOREIGN KEY (member_id) REFERENCES MEMBER(member_id) ON DELETE CASCADE)";
+        
+        try (Statement stmt = conn.createStatement()) {
+            stmt.execute(checkSql);
+        }
+
+        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setLong(1, memberId);
+            pstmt.setInt(2, amount);
+            pstmt.setString(3, reason);
+            pstmt.executeUpdate();
         }
     }
 
