@@ -17,6 +17,8 @@ public interface AdminService {
 
     void addOptionGroupToMenu(long menuId, long groupId, int displayOrder);
 
+    void removeOptionGroupFromMenu(long menuId, long groupId);
+
     // 카테고리 관리
     void addCategory(String name);
 

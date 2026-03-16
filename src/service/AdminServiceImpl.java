@@ -56,30 +56,19 @@ public class AdminServiceImpl implements AdminService {
 			throw new BusinessRuleException("메뉴 등록에 실패했습니다.");
 		}
 
-		// 2. [지능형 옵션 매핑] '프라푸치노' 또는 '라떼' 키워드 검사
-		if (trimmedName.contains("프라푸치노") || trimmedName.contains("라떼")) {
-			List<OptionGroup> allGroups = optionGroupRepository.findAll();
-			
-			// '휘핑유무' 및 '사이즈' 옵션 그룹 찾기
-			OptionGroup whippingGroup = allGroups.stream().filter(g -> g.getGroupName().contains("휘핑")).findFirst().orElse(null);
-			OptionGroup sizeGroup = allGroups.stream().filter(g -> g.getGroupName().contains("사이즈")).findFirst().orElse(null);
+		// 2. [템플릿 방식] 카테고리에 설정된 기본 옵션 그룹들을 메뉴에 자동 매핑
+		// 방금 등록된 메뉴의 ID 조회 (가장 최근 등록된 동일 이름의 메뉴)
+		List<Menu> allMenus = menuRepository.getAllMenus();
+		Menu registeredMenu = allMenus.stream()
+				.filter(m -> m.getMenuName().equals(trimmedName))
+				.sorted((m1, m2) -> Long.compare(m2.getMenuId(), m1.getMenuId()))
+				.findFirst()
+				.orElse(null);
 
-			if (whippingGroup != null || sizeGroup != null) {
-				// 방금 등록된 메뉴의 ID 조회
-				List<Menu> menus = menuRepository.getAllMenus();
-				Menu registeredMenu = menus.stream().filter(m -> m.getMenuName().equals(trimmedName))
-						.sorted((m1, m2) -> Long.compare(m2.getMenuId(), m1.getMenuId())).findFirst().orElse(null);
-
-				if (registeredMenu != null) {
-					// 사이즈 옵션 먼저 추가 (표시 순서 고려)
-					if (sizeGroup != null) {
-						menuRepository.addOptionGroupToMenu(registeredMenu.getMenuId(), sizeGroup.getGroupId(), 1);
-					}
-					// 휘핑 옵션 추가
-					if (whippingGroup != null) {
-						menuRepository.addOptionGroupToMenu(registeredMenu.getMenuId(), whippingGroup.getGroupId(), 2);
-					}
-				}
+		if (registeredMenu != null && category.getOptionGroups() != null) {
+			int order = 1;
+			for (OptionGroup og : category.getOptionGroups()) {
+				menuRepository.addOptionGroupToMenu(registeredMenu.getMenuId(), og.getGroupId(), order++);
 			}
 		}
 	}
@@ -130,6 +119,14 @@ public class AdminServiceImpl implements AdminService {
 		if (group == null) throw new NotFoundException("옵션 그룹을 찾을 수 없습니다.");
 
 		menuRepository.addOptionGroupToMenu(menuId, groupId, displayOrder);
+	}
+
+	@Override
+	public void removeOptionGroupFromMenu(long menuId, long groupId) {
+		Menu menu = menuRepository.findById(menuId);
+		if (menu == null) throw new NotFoundException("메뉴를 찾을 수 없습니다.");
+		
+		menuRepository.removeOptionGroupFromMenu(menuId, groupId);
 	}
 
 	// --- 카테고리 관리 ---

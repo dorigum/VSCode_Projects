@@ -24,4 +24,6 @@ public interface MenuRepository {
 	List<Menu> getPopularMenus(int limit);
 
 	void addOptionGroupToMenu(long menuId, long groupId, int displayOrder);
+
+	void removeOptionGroupFromMenu(long menuId, long groupId);
 }

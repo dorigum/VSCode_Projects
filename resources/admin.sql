@@ -1,5 +1,10 @@
 USE kiosk;
 
+DROP TABLE CATEGORY_OPTION_GROUP;
+
+desc kiosk.MENU_OPTION_GROUP;
+SELECT * FROM kiosk.MENU_OPTION_GROUP;
+
 -- 카테고리별 기본 옵션 그룹 설정 테이블 생성
 CREATE TABLE IF NOT EXISTS `CATEGORY_OPTION_GROUP` (
   `category_id` int NOT NULL,

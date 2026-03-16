@@ -432,6 +432,36 @@ public class MenuView {
 				}
 				int order = readInt("메뉴판 표시 순서 (예: 1): ");
 				adminController.addOptionGroupToMenu(menuId, allGroups.get(groupIdx-1).getGroupId(), order);
+			} else if (sub == 2) {
+				// 기존 옵션 연결 삭제 로직
+				model.Menu menu = adminController.getMenuList().stream()
+						.filter(m -> m.getMenuId() == menuId)
+						.findFirst().orElse(null);
+				
+				if (menu == null) {
+					FailView.fail("메뉴 정보를 찾을 수 없습니다.");
+					continue;
+				}
+
+				List<model.OptionGroup> currentGroups = menu.getOptionGroups();
+				if (currentGroups.isEmpty()) {
+					System.out.println("현재 이 메뉴에 연결된 옵션 그룹이 없습니다.");
+					continue;
+				}
+
+				System.out.println("\n[현재 연결된 옵션 그룹 목록]");
+				for (int i = 0; i < currentGroups.size(); i++) {
+					System.out.println((i + 1) + ". " + currentGroups.get(i).getGroupName());
+				}
+
+				int delIdx = readInt("\n삭제할 옵션의 [목록 번호]를 입력하세요 (취소: 0): ");
+				if (delIdx == 0) continue;
+				if (delIdx < 1 || delIdx > currentGroups.size()) {
+					FailView.fail("잘못된 번호입니다.");
+					continue;
+				}
+
+				adminController.removeOptionGroupFromMenu(menuId, currentGroups.get(delIdx - 1).getGroupId());
 			} else if (sub == 0) break;
 		}
 	}

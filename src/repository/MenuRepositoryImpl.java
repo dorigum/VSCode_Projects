@@ -193,7 +193,23 @@ public class MenuRepositoryImpl implements MenuRepository {
 		} catch (SQLException ignored) {
 		}
 
-		// 2. 각 옵션 그룹에 속한 세부 옵션(MenuOption)들을 채워넣음
+		// 2. 만약 메뉴별 전용 옵션이 하나도 없다면, 카테고리 기본 옵션을 가져옴 (하이브리드 방식)
+		if (groups.isEmpty()) {
+			String catSql = "SELECT og.group_id, og.group_name " + "FROM CATEGORY_OPTION_GROUP cog "
+					+ "JOIN OPTION_GROUP og ON cog.group_id = og.group_id " + "WHERE cog.category_id = ? "
+					+ "ORDER BY cog.display_order";
+			try (PreparedStatement pstmt = conn.prepareStatement(catSql)) {
+				pstmt.setInt(1, categoryId);
+				try (ResultSet rs = pstmt.executeQuery()) {
+					while (rs.next()) {
+						groups.add(new OptionGroup(rs.getLong("group_id"), rs.getString("group_name")));
+					}
+				}
+			} catch (SQLException ignored) {
+			}
+		}
+
+		// 3. 각 옵션 그룹에 속한 세부 옵션(MenuOption)들을 채워넣음
 		for (OptionGroup group : groups) {
 			String optionSql = "SELECT * FROM MENU_OPTION WHERE group_id = ? ORDER BY display_order";
 			try (PreparedStatement pstmt = conn.prepareStatement(optionSql)) {
@@ -223,6 +239,18 @@ public class MenuRepositoryImpl implements MenuRepository {
 			pstmt.executeUpdate();
 		} catch (SQLException e) {
 			throw new RepositoryException("메뉴별 옵션 그룹 등록 중 오류가 발생했습니다.", e);
+		}
+	}
+
+	@Override
+	public void removeOptionGroupFromMenu(long menuId, long groupId) {
+		String sql = "DELETE FROM MENU_OPTION_GROUP WHERE menu_id = ? AND group_id = ?";
+		try (Connection conn = DBUtil.getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
+			pstmt.setLong(1, menuId);
+			pstmt.setLong(2, groupId);
+			pstmt.executeUpdate();
+		} catch (SQLException e) {
+			throw new RepositoryException("메뉴별 옵션 그룹 삭제 중 오류가 발생했습니다.", e);
 		}
 	}
 
