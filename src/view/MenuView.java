@@ -403,22 +403,25 @@ public class MenuView {
 						break;
 				}
 			} else if (sub == 2) {
-				long menuId = readLong("수정할 메뉴 ID (취소: 0): ");
+				System.out.println("\n[수정 가능한 메뉴 목록]");
+				adminController.listMenus();
+				long menuId = readLong("수정할 메뉴의 [ID 번호]를 입력하세요 (취소: 0): ");
 				if (menuId == 0) continue;
 				
-				// 기존 메뉴 정보를 가져오는 로직 (AdminController에 추가 필요할 수 있음)
-				// 여기서는 간단히 새로 입력받는 방식으로 구현
+				System.out.println("\n--- [메뉴 정보 수정 시작] ---");
 				adminController.listCategories();
-				int categoryId = readInt("새 카테고리 ID: ");
-				String name = readText("새 메뉴명: ");
-				int price = readInt("새 가격: ");
-				String description = readText("새 설명: ");
-				System.out.print("판매 가능 여부 (1. 가능, 0. 품절): ");
+				int categoryId = readInt("새 카테고리 ID 번호: ");
+				String name = readText("새 메뉴 이름: ");
+				int price = readInt("새 가격 (단위: 원): ");
+				String description = readText("새 메뉴 설명: ");
+				System.out.print("판매 상태 설정 (1. 판매가능, 0. 품절처리): ");
 				boolean isAvailable = readInt("") == 1;
 				
 				adminController.updateMenu(menuId, categoryId, name, price, description, isAvailable);
 			} else if (sub == 3) {
-				long menuId = readLong("삭제할 메뉴의 ID 번호를 입력하세요 (취소: 0): ");
+				System.out.println("\n[삭제 가능한 메뉴 목록]");
+				adminController.listMenus();
+				long menuId = readLong("삭제할 메뉴의 [ID 번호]를 입력하세요 (취소: 0): ");
 				if (menuId == 0)
 					continue;
 				adminController.deleteMenu(menuId);
@@ -434,19 +437,25 @@ public class MenuView {
 
 	private void runMenuOptionMapping(AdminController adminController) {
 		while (true) {
-			System.out.println("\n--- [메뉴별 전용 옵션 설정] ---");
-			System.out.println("팁: 특정 메뉴에만 적용할 옵션 그룹(예: 에이드의 'ICE 전용 온도')을 연결할 때 사용하세요.");
+			System.out.println("\n--- [메뉴별 전용 옵션 설정 가이드] ---");
+			System.out.println("팁: 특정 메뉴에만 적용할 특수 옵션(예: 에이드의 'ICE 전용')을 연결할 때 사용하세요.");
+			System.out.println("\n[현재 등록된 전체 메뉴 목록]");
 			adminController.listMenus();
-			long menuId = readLong("설정할 메뉴 ID (취소: 0): ");
+			
+			long menuId = readLong("\n설정할 메뉴의 [ID 번호]를 입력하세요 (취소: 0): ");
 			if (menuId == 0) break;
 
-			System.out.println("\n1. 옵션 그룹 연결 추가 | 2. 옵션 그룹 연결 삭제 | 0. 뒤로");
+			System.out.println("\n1. 새로운 옵션 그룹 연결 | 2. 기존 옵션 연결 삭제 | 0. 뒤로");
 			int sub = readInt("선택: ");
 			if (sub == 1) {
+				System.out.println("\n[연결 가능한 옵션 그룹 목록]");
 				List<model.OptionGroup> allGroups = adminController.listOptionGroups();
-				int groupIdx = readInt("연결할 옵션 그룹 번호: ");
-				if (groupIdx < 1 || groupIdx > allGroups.size()) continue;
-				int order = readInt("표시 순서: ");
+				int groupIdx = readInt("\n연결할 옵션 그룹의 [목록 번호]를 입력하세요: ");
+				if (groupIdx < 1 || groupIdx > allGroups.size()) {
+					FailView.fail("잘못된 번호입니다.");
+					continue;
+				}
+				int order = readInt("메뉴판 표시 순서 (예: 1): ");
 				adminController.addOptionGroupToMenu(menuId, allGroups.get(groupIdx-1).getGroupId(), order);
 			} else if (sub == 0) break;
 		}
