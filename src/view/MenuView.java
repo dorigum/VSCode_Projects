@@ -85,28 +85,24 @@ public class MenuView {
 
 		while (true) {
 			System.out.println("\n1. 주문 내역 보기");
-			System.out.println("2. 찜 목록 보기");
-			System.out.println("3. 퀵오더 (최근 주문 바로 주문)");
-			System.out.println("4. 주문하기 (메뉴판 보기)");
-			// <<<<<<< HEAD 부터 >>>>>>> origin/develop 지우고 교체
-			System.out.println("5. 추천 메뉴 보기");
-			System.out.println("6. 선호 카테고리 변경");
-			System.out.println("7. 포인트 적립 내역 확인");
+			System.out.println("2. 퀵오더 (최근 주문 바로 주문)");
+			System.out.println("3. 주문하기 (메뉴판 보기)");
+			System.out.println("4. 추천 메뉴 보기");
+			System.out.println("5. 선호 카테고리 변경");
+			System.out.println("6. 포인트 적립 내역 확인");
 			System.out.println("0. 로그아웃");
 			int sub = readInt("선택: ");
 
 			if (sub == 1) {
 				memberController.showOrderHistory(member);
 			} else if (sub == 2) {
-				memberController.showWishlist(member);
-			} else if (sub == 3) {
 				List<OrderItem> quickItems = memberController.showQuickOrder(member);
 				if (quickItems != null && !quickItems.isEmpty()) {
 					new OrderingView(scanner).runWithCart(menuController, member, quickItems);
 				}
-			} else if (sub == 4) {
+			} else if (sub == 3) {
 				new OrderingView(scanner).run(menuController, member);
-			} else if (sub == 5) {
+			} else if (sub == 4) {
 				List<Menu> recommended = memberController.getRecommendedMenus(member);
 				if (recommended == null || recommended.isEmpty()) {
 					System.out.println("선호 카테고리를 먼저 설정해주세요.");
@@ -114,7 +110,7 @@ public class MenuView {
 					System.out.println("\n===== 추천 메뉴 =====");
 					recommended.forEach(m -> System.out.printf("- %s | %,d원\n", m.getMenuName(), m.getPrice()));
 				}
-			} else if (sub == 6) {
+			} else if (sub == 5) {
 				System.out.println("\n선호 카테고리를 선택해주세요.");
 				System.out.println("1. 커피");
 				System.out.println("2. 논커피");
@@ -136,7 +132,7 @@ public class MenuView {
 					categoryId = 0;
 				}
 				memberController.updatePreferredCategory(member, categoryId);
-			} else if (sub == 7) {
+			} else if (sub == 6) {
 				memberController.showPointHistory(member);
 			} else if (sub == 0) {
 				EndView.success("로그아웃 되었습니다.");

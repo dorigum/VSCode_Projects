@@ -135,38 +135,6 @@ public class MemberServiceImpl implements MemberService {
 	}
 
 	@Override
-	public List<Wishlist> getWishlist(Member member) {
-		validateMember(member);
-		return wishlistRepository.getWishlistByMember(member.getMemberId());
-	}
-
-	@Override
-	public void addWishlist(Member member, long menuId) {
-		validateMember(member);
-		if (menuId <= 0) {
-			throw new ValidationException("메뉴 ID는 1 이상이어야 합니다.");
-		}
-		if (wishlistRepository.isAlreadyWished(member.getMemberId(), menuId)) {
-			throw new ConflictException("이미 찜한 메뉴입니다.");
-		}
-		boolean result = wishlistRepository.addWishlist(member.getMemberId(), menuId);
-		if (!result) {
-			throw new BusinessRuleException("찜 목록 추가에 실패했습니다.");
-		}
-	}
-
-	@Override
-	public void removeWishlist(long wishlistId) {
-		if (wishlistId <= 0) {
-			throw new ValidationException("찜 ID는 1 이상이어야 합니다.");
-		}
-		boolean result = wishlistRepository.removeWishlist(wishlistId);
-		if (!result) {
-			throw new BusinessRuleException("찜 삭제에 실패했습니다.");
-		}
-	}
-
-	@Override
 	public Order getQuickOrder(Member member) {
 		validateMember(member);
 		return quickOrderRepository.getRecentOrder(member.getMemberId());

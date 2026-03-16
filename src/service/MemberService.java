@@ -18,12 +18,6 @@ public interface MemberService {
 
 	List<PointHistory> getPointHistory(Member member);
 
-	List<Wishlist> getWishlist(Member member);
-
-	void addWishlist(Member member, long menuId);
-
-	void removeWishlist(long wishlistId);
-
 	Order getQuickOrder(Member member);
 
 	List<Menu> getRecommendedMenus(int categoryId); // ← 추가
