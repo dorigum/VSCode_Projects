@@ -330,9 +330,6 @@ public final class EndView {
 				System.out.printf("    - %s%n", menu.getDescription());
 			}
 		}
-		System.out.println(" 0. 뒤로");
-		System.out.println(" 8. 카트확인");
-		System.out.println(" 9. 주문하기");
 	}
 
 	public static void printOrderMenu(List<Menu> menus) {

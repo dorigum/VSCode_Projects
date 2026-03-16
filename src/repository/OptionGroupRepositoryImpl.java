@@ -12,7 +12,8 @@ public class OptionGroupRepositoryImpl implements OptionGroupRepository {
 
     @Override
     public List<OptionGroup> findAll() {
-        String sql = "SELECT * FROM OPTION_GROUP";
+        // 이름별로 그룹화하여 중복 출력 방지
+        String sql = "SELECT MIN(group_id) as group_id, group_name FROM OPTION_GROUP GROUP BY group_name ORDER BY group_id";
         List<OptionGroup> list = new ArrayList<>();
         try (Connection conn = DBUtil.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql);
