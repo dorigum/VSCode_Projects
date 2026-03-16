@@ -75,16 +75,25 @@ public class Order {
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 		String memberInfo = (memberPhone != null) ? memberPhone : (memberId > 0 ? "회원ID: " + memberId : "비회원");
-		sb.append(String.format("[주문] %s | 주문자: %s | 총액: %,d원 | 사용포인트: %,d원 | 적립포인트: %,d원\n", 
-				orderDate, memberInfo, totalAmount, pointUsed, pointEarned));
+		sb.append(String.format("[주문] %s | 주문자: %s | 총액: %,d원 | 상태: %s\n", 
+				orderDate, memberInfo, totalAmount, status));
+		sb.append(String.format("      사용포인트: %,d원 | 적립포인트: %,d원\n", pointUsed, pointEarned));
+		
 		if (items != null) {
 			for (OrderItem item : items) {
-				sb.append(String.format("  - %s %d개 x %,d원\n", item.getMenuNameSnapshot(), item.getQuantity(),
+				sb.append(String.format("  - %-15s %d개 x %,d원\n", item.getMenuNameSnapshot(), item.getQuantity(),
 						item.getUnitPrice()));
+				
+				// 선택된 세부 옵션 출력 (추가된 로직)
+				List<MenuOption> options = item.getOptions();
+				if (options != null && !options.isEmpty()) {
+					String optStr = options.stream()
+							.map(MenuOption::getOptionName)
+							.collect(java.util.stream.Collectors.joining(", "));
+					sb.append(String.format("    └─ [선택 옵션: %s]\n", optStr));
+				}
 			}
 		}
-
 		return sb.toString();
-
 	}
 }

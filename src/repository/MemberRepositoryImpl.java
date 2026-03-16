@@ -158,10 +158,32 @@ public Member login(String phone, String password) {
 						List<OrderItem> items = new ArrayList<>();
 						try (ResultSet itemRs = itemPs.executeQuery()) {
 							while (itemRs.next()) {
-								items.add(new OrderItem(itemRs.getLong("order_item_id"), itemRs.getLong("order_id"),
+								OrderItem item = new OrderItem(itemRs.getLong("order_item_id"), itemRs.getLong("order_id"),
 										itemRs.getLong("menu_id"), itemRs.getInt("quantity"),
 										itemRs.getInt("unit_price"), itemRs.getString("menu_name_snapshot"),
-										itemRs.getString("category_name_snapshot")));
+										itemRs.getString("category_name_snapshot"));
+								
+								// 3단계: 각 OrderItem의 선택된 옵션 정보 조회 (추가된 로직)
+								String optionSql = "SELECT mo.* FROM ORDER_ITEM_OPTION oio " +
+								                   "JOIN MENU_OPTION mo ON oio.option_id = mo.option_id " +
+								                   "WHERE oio.order_item_id = ?";
+								try (PreparedStatement optPs = conn.prepareStatement(optionSql)) {
+									optPs.setLong(1, item.getOrderItemId());
+									List<model.MenuOption> options = new ArrayList<>();
+									try (ResultSet optRs = optPs.executeQuery()) {
+										while (optRs.next()) {
+											options.add(new model.MenuOption(
+												optRs.getLong("option_id"),
+												optRs.getLong("group_id"),
+												optRs.getString("option_name"),
+												optRs.getInt("extra_price"),
+												optRs.getInt("display_order")
+											));
+										}
+									}
+									item.setOptions(options);
+								}
+								items.add(item);
 							}
 						}
 						order.setItems(items);
