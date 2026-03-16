@@ -74,8 +74,9 @@ public class Order {
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
-		sb.append(String.format("[주문] %s | 총액: %,d원 | 사용포인트: %,d원 | 적립포인트: %,d원\n", orderDate, totalAmount, pointUsed,
-				pointEarned));
+		String memberInfo = (memberPhone != null) ? memberPhone : (memberId > 0 ? "회원ID: " + memberId : "비회원");
+		sb.append(String.format("[주문] %s | 주문자: %s | 총액: %,d원 | 사용포인트: %,d원 | 적립포인트: %,d원\n", 
+				orderDate, memberInfo, totalAmount, pointUsed, pointEarned));
 		if (items != null) {
 			for (OrderItem item : items) {
 				sb.append(String.format("  - %s %d개 x %,d원\n", item.getMenuNameSnapshot(), item.getQuantity(),

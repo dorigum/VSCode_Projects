@@ -320,8 +320,9 @@ public class OrderRepositoryImpl implements OrderRepository {
 
     public List<Order> getAllOrders() {
         List<Order> orders = new ArrayList<>();
-        // 1. 주문 기본 정보 및 주문자 정보 조회 (MEMBER JOIN)
-        String orderSql = "SELECT o.*, m.phone FROM ORDERS o LEFT JOIN MEMBER m ON o.member_id = m.member_id ORDER BY o.order_date DESC";
+        // 1. 주문 기본 정보 및 주문자 정보 조회 (MEMBER JOIN) - 컬럼명 명시
+        String orderSql = "SELECT o.order_id, o.member_id, o.total_amount, o.point_used, o.point_earned, o.status, o.order_date, m.phone " +
+                         "FROM ORDERS o LEFT JOIN MEMBER m ON o.member_id = m.member_id ORDER BY o.order_date DESC";
         
         try (Connection conn = DBUtil.getConnection();
              Statement stmt = conn.createStatement();
@@ -401,8 +402,10 @@ public class OrderRepositoryImpl implements OrderRepository {
             throws SQLException {
         try (PreparedStatement pstmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             if (member == null) {
+                System.out.println("[DEBUG] 주문 생성: 비회원");
                 pstmt.setNull(1, Types.BIGINT);
             } else {
+                System.out.println("[DEBUG] 주문 생성: 회원 ID = " + member.getMemberId());
                 pstmt.setLong(1, member.getMemberId());
             }
             pstmt.setInt(2, totalAmount);

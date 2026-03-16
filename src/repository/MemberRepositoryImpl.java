@@ -73,35 +73,36 @@ public class MemberRepositoryImpl implements MemberRepository {
 			throw new RepositoryException("포인트 내역 조회 중 오류가 발생했습니다.", e);
 		}
 	}
+// 로그인 - phone으로
+public Member login(String phone, String password) {
+	String sql = "SELECT member_id, phone, password, age, point_balance, role, created_at, preferred_category_id FROM MEMBER WHERE phone = ? AND password = BINARY ?";
+	try (Connection conn = DBUtil.getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
+		pstmt.setString(1, phone);
+		pstmt.setString(2, password);
+		try (ResultSet rs = pstmt.executeQuery()) {
+			if (rs.next()) {
+				long memberId = rs.getLong("member_id");
+				System.out.println("[DEBUG] 로그인 성공: " + phone + " (ID: " + memberId + ")");
 
-	// 로그인 - phone으로
-	public Member login(String phone, String password) {
-		String sql = "SELECT * FROM MEMBER WHERE phone = ? AND password = BINARY ?";
-		try (Connection conn = DBUtil.getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
-			pstmt.setString(1, phone);
-			pstmt.setString(2, password);
-			try (ResultSet rs = pstmt.executeQuery()) {
-				if (rs.next()) {
-					long memberId = rs.getLong("member_id");
-					Member member = new Member(memberId, rs.getString("phone"), rs.getString("password"),
-							rs.getInt("age"), rs.getInt("point_balance"), rs.getString("role"),
-							rs.getTimestamp("created_at"));
-					
-					try {
-						member.setPreferredCategoryId(rs.getInt("preferred_category_id"));
-					} catch (SQLException ignored) {
-					}
-					
-					if (memberId > 0) {
-						return member;
-					}
+				Member member = new Member(memberId, rs.getString("phone"), rs.getString("password"),
+						rs.getInt("age"), rs.getInt("point_balance"), rs.getString("role"),
+						rs.getTimestamp("created_at"));
+
+				try {
+					member.setPreferredCategoryId(rs.getInt("preferred_category_id"));
+				} catch (SQLException ignored) {
+				}
+
+				if (memberId > 0) {
+					return member;
 				}
 			}
-		} catch (SQLException e) {
-			throw new RepositoryException("로그인 처리 중 오류가 발생했습니다.", e);
 		}
-		return null;
+	} catch (SQLException e) {
+		throw new RepositoryException("로그인 처리 중 오류가 발생했습니다.", e);
 	}
+	return null;
+}
 
 	// 회원가입
 	public boolean register(Member member) {
@@ -136,14 +137,18 @@ public class MemberRepositoryImpl implements MemberRepository {
 	// 주문 내역 조회
 	public List<Order> getOrderHistory(long memberId) {
 		List<Order> orderList = new ArrayList<>();
+		
+		// 회원 정보 먼저 조회 (전화번호 가져오기용)
+		Member member = getMemberById(memberId);
+		String phone = (member != null) ? member.getPhone() : null;
 
-		// 1단계: ORDERS 먼저 조회
+		// 1단계: ORDERS 조회
 		String orderSql = "SELECT * FROM ORDERS WHERE member_id = ? ORDER BY order_date DESC";
 		try (Connection conn = DBUtil.getConnection(); PreparedStatement pstmt = conn.prepareStatement(orderSql)) {
 			pstmt.setLong(1, memberId);
 			try (ResultSet rs = pstmt.executeQuery()) {
 				while (rs.next()) {
-					Order order = new Order(rs.getLong("order_id"), rs.getLong("member_id"), rs.getInt("total_amount"),
+					Order order = new Order(rs.getLong("order_id"), rs.getLong("member_id"), phone, rs.getInt("total_amount"),
 							rs.getInt("point_used"), rs.getInt("point_earned"), rs.getString("status"),
 							rs.getTimestamp("order_date"));
 
