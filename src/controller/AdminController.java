@@ -86,6 +86,15 @@ public class AdminController {
         }
     }
 
+    public List<Menu> getMenuList() {
+        try {
+            return adminService.getMenuList();
+        } catch (CafeKioskException e) {
+            FailView.fail(e.getMessage());
+            return null;
+        }
+    }
+
     public boolean registerMenu(int categoryId, String name, int price, String description) {
         try {
             adminService.registerMenu(categoryId, name, price, description);

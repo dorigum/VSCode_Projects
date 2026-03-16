@@ -399,8 +399,23 @@ public class MenuView {
 					String name = readText("메뉴명: ");
 					int price = readInt("가격: ");
 					String description = readText("설명: ");
-					if (adminController.registerMenu(categoryId, name, price, description))
+					
+					if (adminController.registerMenu(categoryId, name, price, description)) {
+						// 방금 등록된 메뉴의 ID를 가져오기 위해 목록을 다시 조회 (가장 최근 것)
+						List<Menu> currentMenus = adminController.getMenuList(); // AdminController에 메서드 추가 필요
+						Menu latestMenu = currentMenus.stream()
+								.sorted((m1, m2) -> Long.compare(m2.getMenuId(), m1.getMenuId()))
+								.findFirst().orElse(null);
+						
+						if (latestMenu != null) {
+							System.out.println("\n[알림] 신규 메뉴에 대한 세부 옵션 설정이 필요합니까?");
+							System.out.println("1. 예 (지금 바로 설정) | 0. 아니오 (나중에 설정)");
+							if (readInt("선택: ") == 1) {
+								runSingleMenuOptionMapping(adminController, latestMenu);
+							}
+						}
 						break;
+					}
 				}
 			} else if (sub == 2) {
 				System.out.println("\n[수정 가능한 메뉴 목록]");
@@ -432,6 +447,26 @@ public class MenuView {
 			} else {
 				FailView.fail("잘못된 선택입니다.");
 			}
+		}
+	}
+
+	private void runSingleMenuOptionMapping(AdminController adminController, Menu menu) {
+		while (true) {
+			System.out.println("\n=== [" + menu.getMenuName() + "] 전용 옵션 설정 ===");
+			System.out.println("연결할 옵션 그룹 번호를 선택해 주세요.");
+			List<model.OptionGroup> allGroups = adminController.listOptionGroups();
+			System.out.println("0. 설정 종료");
+			
+			int choice = readInt("연결할 그룹 번호: ");
+			if (choice == 0) break;
+			
+			if (choice < 1 || choice > allGroups.size()) {
+				FailView.fail("잘못된 번호입니다.");
+				continue;
+			}
+			
+			int order = readInt("표시 순서 (예: 1, 2...): ");
+			adminController.addOptionGroupToMenu(menu.getMenuId(), allGroups.get(choice - 1).getGroupId(), order);
 		}
 	}
 
