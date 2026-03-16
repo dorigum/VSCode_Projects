@@ -435,15 +435,20 @@ public class OrderingView {
 	}
 
 	private void printCategoryMenu() {
-		System.out.println("\n--- [메뉴 카테고리] ---");
-		System.out.println("1. 인기 상품");
-		System.out.println("2. 신상품");
-		System.out.println("3. 커피");
-		System.out.println("4. 논커피");
-		System.out.println("5. 디저트");
-		System.out.println("8. 카트확인");
-		System.out.println("9. 주문하기");
-		System.out.println("0. 뒤로가기");
+		System.out.println("\n===============================");
+		System.out.println("         메뉴 카테고리         ");
+		System.out.println("===============================");
+		System.out.println("  1. 인기 상품");
+		System.out.println("  2. 신상품");
+		System.out.println("  3. 커피");
+		System.out.println("  4. 논커피");
+		System.out.println("  5. 디저트");
+		System.out.println("  6. 추천 메뉴");
+		System.out.println("-------------------------------");
+		System.out.println("  8. 카트 확인");
+		System.out.println("  9. 주문하기");
+		System.out.println("  0. 뒤로");
+		System.out.println("===============================");
 	}
 
 	private int readInt(String prompt) {

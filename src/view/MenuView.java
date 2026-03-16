@@ -39,9 +39,14 @@ public class MenuView {
 	}
 
 	private void runMemberFlow(MemberController memberController, MenuController menuController) {
-		System.out.println("\n1. 로그인");
-		System.out.println("2. 회원가입");
-		System.out.println("0. 뒤로");
+		System.out.println("\n===============================");
+		System.out.println("         회원 서비스           ");
+		System.out.println("===============================");
+		System.out.println("  1. 로그인");
+		System.out.println("  2. 회원가입");
+		System.out.println("-------------------------------");
+		System.out.println("  0. 뒤로");
+		System.out.println("===============================");
 		int choice = readInt("선택: ");
 
 		if (choice == 2) {
@@ -84,13 +89,18 @@ public class MenuView {
 			return;
 
 		while (true) {
-			System.out.println("\n1. 주문 내역 보기");
-			System.out.println("2. 퀵오더 (최근 주문 바로 주문)");
-			System.out.println("3. 주문하기 (메뉴판 보기)");
-			System.out.println("4. 추천 메뉴 보기");
-			System.out.println("5. 선호 카테고리 변경");
-			System.out.println("6. 포인트 적립 내역 확인");
-			System.out.println("0. 로그아웃");
+			System.out.println("\n===============================");
+			System.out.printf("  안녕하세요, %s님!%n", member.getPhone());
+			System.out.println("===============================");
+			System.out.println("  1. 주문 내역 보기");
+			System.out.println("  2. 퀵오더");
+			System.out.println("  3. 주문하기");
+			System.out.println("  4. 추천 메뉴 보기");
+			System.out.println("  5. 선호 카테고리 변경");
+			System.out.println("  6. 포인트 내역 확인");
+			System.out.println("-------------------------------");
+			System.out.println("  0. 로그아웃");
+			System.out.println("===============================");
 			int sub = readInt("선택: ");
 
 			if (sub == 1) {
@@ -586,11 +596,15 @@ public class MenuView {
 	}
 
 	private void printMainMenu() {
-		System.out.println("\n[카페 키오스크 - New DB 모드]");
-		System.out.println("1. 회원 로그인 및 주문 내역 조회");
-		System.out.println("2. 비회원 주문");
-		System.out.println("3. 관리자 모드 (카테고리/메뉴/통계)");
-		System.out.println("0. 종료");
+		System.out.println("\n===============================");
+		System.out.println("       KOSTA 카페 키오스크      ");
+		System.out.println("===============================");
+		System.out.println("  1. 회원 로그인");
+		System.out.println("  2. 비회원 주문");
+		System.out.println("  3. 관리자 모드");
+		System.out.println("-------------------------------");
+		System.out.println("  0. 종료");
+		System.out.println("===============================");
 	}
 
 	private int readInt(String prompt) {
