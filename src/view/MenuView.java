@@ -88,10 +88,6 @@ public class MenuView {
 			System.out.println("2. 찜 목록 보기");
 			System.out.println("3. 퀵오더 (최근 주문 바로 주문)");
 			System.out.println("4. 주문하기 (메뉴판 보기)");
-			System.out.println("\n1. 주문 내역 보기");
-			System.out.println("2. 찜 목록 보기");
-			System.out.println("3. 퀵오더 (최근 주문 바로 주문)");
-			System.out.println("4. 주문하기 (메뉴판 보기)");
 			System.out.println("5. 추천 메뉴 보기");
 			System.out.println("6. 선호 카테고리 변경");
 			System.out.println("7. 포인트 적립 내역 확인");
