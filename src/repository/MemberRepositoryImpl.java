@@ -13,11 +13,24 @@ public class MemberRepositoryImpl implements MemberRepository {
 
 	@Override
 	public void savePointHistory(long memberId, int amount, String reason) {
+		String checkSql = "CREATE TABLE IF NOT EXISTS POINT_HISTORY (" +
+				"history_id INT AUTO_INCREMENT PRIMARY KEY, " +
+				"member_id BIGINT NOT NULL, " +
+				"amount INT NOT NULL, " +
+				"reason VARCHAR(255) NOT NULL, " +
+				"created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, " +
+				"FOREIGN KEY (member_id) REFERENCES MEMBER(member_id) ON DELETE CASCADE)";
+		
 		String insertSql = "INSERT INTO POINT_HISTORY (member_id, amount, reason) VALUES (?, ?, ?)";
 		
 		try (Connection conn = DBUtil.getConnection();
+			 Statement stmt = conn.createStatement();
 			 PreparedStatement pstmt = conn.prepareStatement(insertSql)) {
 			
+			// 1. 테이블이 없으면 생성 (안정성 확보)
+			stmt.execute(checkSql);
+			
+			// 2. 내역 저장
 			pstmt.setLong(1, memberId);
 			pstmt.setInt(2, amount);
 			pstmt.setString(3, reason);
