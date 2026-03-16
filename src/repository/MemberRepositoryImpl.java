@@ -13,29 +13,26 @@ public class MemberRepositoryImpl implements MemberRepository {
 
 	@Override
 	public void savePointHistory(long memberId, int amount, String reason) {
-		String checkSql = "CREATE TABLE IF NOT EXISTS POINT_HISTORY (" +
-				"history_id INT AUTO_INCREMENT PRIMARY KEY, " +
-				"member_id BIGINT NOT NULL, " +
-				"amount INT NOT NULL, " +
-				"reason VARCHAR(255) NOT NULL, " +
-				"created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, " +
-				"FOREIGN KEY (member_id) REFERENCES MEMBER(member_id) ON DELETE CASCADE)";
-		
+		String checkSql = "CREATE TABLE IF NOT EXISTS POINT_HISTORY (" + "history_id INT AUTO_INCREMENT PRIMARY KEY, "
+				+ "member_id BIGINT NOT NULL, " + "amount INT NOT NULL, " + "reason VARCHAR(255) NOT NULL, "
+				+ "created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, "
+				+ "FOREIGN KEY (member_id) REFERENCES MEMBER(member_id) ON DELETE CASCADE)";
+
 		String insertSql = "INSERT INTO POINT_HISTORY (member_id, amount, reason) VALUES (?, ?, ?)";
-		
+
 		try (Connection conn = DBUtil.getConnection();
-			 Statement stmt = conn.createStatement();
-			 PreparedStatement pstmt = conn.prepareStatement(insertSql)) {
-			
+				Statement stmt = conn.createStatement();
+				PreparedStatement pstmt = conn.prepareStatement(insertSql)) {
+
 			// 1. 테이블 존재 여부 보장 (안정성)
 			stmt.execute(checkSql);
-			
+
 			// 2. 히스토리 저장
 			pstmt.setLong(1, memberId);
 			pstmt.setInt(2, amount);
 			pstmt.setString(3, reason);
 			pstmt.executeUpdate();
-			
+
 		} catch (SQLException e) {
 			throw new RepositoryException("포인트 내역 저장 중 오류가 발생했습니다.", e);
 		}
@@ -45,20 +42,14 @@ public class MemberRepositoryImpl implements MemberRepository {
 	public List<PointHistory> getPointHistory(long memberId) {
 		List<PointHistory> historyList = new ArrayList<>();
 		String sql = "SELECT * FROM POINT_HISTORY WHERE member_id = ? ORDER BY created_at DESC";
-		
-		try (Connection conn = DBUtil.getConnection(); 
-			 PreparedStatement pstmt = conn.prepareStatement(sql)) {
-			
+
+		try (Connection conn = DBUtil.getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
 			pstmt.setLong(1, memberId);
 			try (ResultSet rs = pstmt.executeQuery()) {
 				while (rs.next()) {
-					historyList.add(new PointHistory(
-							rs.getInt("history_id"),
-							rs.getLong("member_id"),
-							rs.getInt("amount"),
-							rs.getString("reason"),
-							rs.getTimestamp("created_at")
-					));
+					historyList.add(new PointHistory(rs.getInt("history_id"), rs.getLong("member_id"),
+							rs.getInt("amount"), rs.getString("reason"), rs.getTimestamp("created_at")));
 				}
 			}
 			return historyList;
@@ -76,9 +67,11 @@ public class MemberRepositoryImpl implements MemberRepository {
 			pstmt.setString(2, password);
 			try (ResultSet rs = pstmt.executeQuery()) {
 				if (rs.next()) {
-					return new Member(rs.getLong("member_id"), rs.getString("phone"), rs.getString("password"),
+					Member member = new Member(rs.getLong("member_id"), rs.getString("phone"), rs.getString("password"),
 							rs.getInt("age"), rs.getInt("point_balance"), rs.getString("role"),
 							rs.getTimestamp("created_at"));
+					member.setPreferredCategoryId(rs.getInt("preferred_category_id")); // ← 추가
+					return member;
 				}
 			}
 		} catch (SQLException e) {
@@ -89,11 +82,13 @@ public class MemberRepositoryImpl implements MemberRepository {
 
 	// 회원가입
 	public boolean register(Member member) {
-		String sql = "INSERT INTO MEMBER (phone, password, age) VALUES (?, ?, ?)";
+		String sql = "INSERT INTO MEMBER (phone, password, age, preferred_category_id) VALUES (?, ?, ?, ?)";
 		try (Connection conn = DBUtil.getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
 			pstmt.setString(1, member.getPhone());
 			pstmt.setString(2, member.getPassword());
 			pstmt.setInt(3, member.getAge());
+			pstmt.setInt(4, member.getPreferredCategoryId());
+
 			return pstmt.executeUpdate() > 0;
 		} catch (SQLException e) {
 			throw new RepositoryException("회원가입 처리 중 오류가 발생했습니다.", e);
@@ -181,9 +176,11 @@ public class MemberRepositoryImpl implements MemberRepository {
 				Statement stmt = conn.createStatement();
 				ResultSet rs = stmt.executeQuery(sql)) {
 			while (rs.next()) {
-				members.add(new Member(rs.getLong("member_id"), rs.getString("phone"), rs.getString("password"),
+				Member m = new Member(rs.getLong("member_id"), rs.getString("phone"), rs.getString("password"),
 						rs.getInt("age"), rs.getInt("point_balance"), rs.getString("role"),
-						rs.getTimestamp("created_at")));
+						rs.getTimestamp("created_at"));
+				m.setPreferredCategoryId(rs.getInt("preferred_category_id")); // ← 추가
+				members.add(m);
 			}
 			return members;
 		} catch (SQLException e) {
@@ -199,6 +196,17 @@ public class MemberRepositoryImpl implements MemberRepository {
 			return pstmt.executeUpdate() > 0;
 		} catch (SQLException e) {
 			throw new RepositoryException("회원 삭제 중 오류가 발생했습니다.", e);
+		}
+	}
+
+	public void updatePreferredCategory(long memberId, int categoryId) {
+		String sql = "UPDATE MEMBER SET preferred_category_id = ? WHERE member_id = ?";
+		try (Connection conn = DBUtil.getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
+			pstmt.setInt(1, categoryId);
+			pstmt.setLong(2, memberId);
+			pstmt.executeUpdate();
+		} catch (SQLException e) {
+			throw new RepositoryException("선호 카테고리 수정 중 오류가 발생했습니다.", e);
 		}
 	}
 

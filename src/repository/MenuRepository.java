@@ -5,19 +5,21 @@ import model.Menu;
 import java.util.List;
 
 public interface MenuRepository {
-    boolean addMenu(Menu menu);
+	boolean addMenu(Menu menu);
 
-    List<Menu> getAllMenus();
+	List<Menu> getAllMenus();
 
-    Menu findById(long id);
+	Menu findById(long id);
 
-    boolean deleteMenu(long id);
+	boolean deleteMenu(long id);
 
-    List<Menu> getMenusByCategoryName(String categoryName);
+	List<Menu> getMenusByCategoryName(String categoryName);
 
-    List<Menu> getLatestMenus(int limit);
+	List<Menu> getMenusByCategoryId(int categoryId);
 
-    List<Menu> getPopularMenus(int limit);
+	List<Menu> getLatestMenus(int limit);
 
-    void addOptionGroupToMenu(long menuId, long groupId, int displayOrder);
+	List<Menu> getPopularMenus(int limit);
+
+	void addOptionGroupToMenu(long menuId, long groupId, int displayOrder);
 }
