@@ -432,7 +432,8 @@ public class MenuView {
 				adminController.deleteMember(memberId);
 			} else if (sub == 2) {
 				long memberId = readLong("포인트를 수정할 회원 ID (취소: 0): ");
-				if (memberId == 0) continue;
+				if (memberId == 0)
+					continue;
 
 				Member member = adminController.getMemberById(memberId);
 				if (member == null) {
@@ -451,8 +452,9 @@ public class MenuView {
 				adminController.updateMemberPoint(memberId, amount, reason);
 			} else if (sub == 3) {
 				long memberId = readLong("등급을 변경할 회원 ID (취소: 0): ");
-				if (memberId == 0) continue;
-				
+				if (memberId == 0)
+					continue;
+
 				System.out.println("변경할 등급을 입력하세요 (ADMIN / USER)");
 				String newRole = readText("새 등급: ");
 				adminController.updateMemberRole(memberId, newRole);

@@ -13,29 +13,26 @@ public class MemberRepositoryImpl implements MemberRepository {
 
 	@Override
 	public void savePointHistory(long memberId, int amount, String reason) {
-		String checkSql = "CREATE TABLE IF NOT EXISTS POINT_HISTORY (" +
-				"history_id INT AUTO_INCREMENT PRIMARY KEY, " +
-				"member_id BIGINT NOT NULL, " +
-				"amount INT NOT NULL, " +
-				"reason VARCHAR(255) NOT NULL, " +
-				"created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, " +
-				"FOREIGN KEY (member_id) REFERENCES MEMBER(member_id) ON DELETE CASCADE)";
-		
+		String checkSql = "CREATE TABLE IF NOT EXISTS POINT_HISTORY (" + "history_id INT AUTO_INCREMENT PRIMARY KEY, "
+				+ "member_id BIGINT NOT NULL, " + "amount INT NOT NULL, " + "reason VARCHAR(255) NOT NULL, "
+				+ "created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, "
+				+ "FOREIGN KEY (member_id) REFERENCES MEMBER(member_id) ON DELETE CASCADE)";
+
 		String insertSql = "INSERT INTO POINT_HISTORY (member_id, amount, reason) VALUES (?, ?, ?)";
-		
+
 		try (Connection conn = DBUtil.getConnection();
-			 Statement stmt = conn.createStatement();
-			 PreparedStatement pstmt = conn.prepareStatement(insertSql)) {
-			
-			// 1. 테이블이 없으면 생성 (안정성 확보)
+				Statement stmt = conn.createStatement();
+				PreparedStatement pstmt = conn.prepareStatement(insertSql)) {
+
+			// 1. 테이블 존재 여부 보장 (안정성)
 			stmt.execute(checkSql);
-			
-			// 2. 내역 저장
+
+			// 2. 히스토리 저장
 			pstmt.setLong(1, memberId);
 			pstmt.setInt(2, amount);
 			pstmt.setString(3, reason);
 			pstmt.executeUpdate();
-			
+
 		} catch (SQLException e) {
 			throw new RepositoryException("포인트 내역 저장 중 오류가 발생했습니다.", e);
 		}
@@ -67,13 +64,8 @@ public class MemberRepositoryImpl implements MemberRepository {
 			pstmt.setLong(1, memberId);
 			try (ResultSet rs = pstmt.executeQuery()) {
 				while (rs.next()) {
-					historyList.add(new PointHistory(
-							rs.getInt("history_id"),
-							rs.getLong("member_id"),
-							rs.getInt("amount"),
-							rs.getString("reason"),
-							rs.getTimestamp("created_at")
-					));
+					historyList.add(new PointHistory(rs.getInt("history_id"), rs.getLong("member_id"),
+							rs.getInt("amount"), rs.getString("reason"), rs.getTimestamp("created_at")));
 				}
 			}
 			return historyList;
@@ -95,7 +87,6 @@ public class MemberRepositoryImpl implements MemberRepository {
 							rs.getInt("age"), rs.getInt("point_balance"), rs.getString("role"),
 							rs.getTimestamp("created_at"));
 					
-					// 선호 카테고리 설정 (컬럼이 있을 때만)
 					try {
 						member.setPreferredCategoryId(rs.getInt("preferred_category_id"));
 					} catch (SQLException ignored) {
@@ -211,7 +202,7 @@ public class MemberRepositoryImpl implements MemberRepository {
 				Member m = new Member(rs.getLong("member_id"), rs.getString("phone"), rs.getString("password"),
 						rs.getInt("age"), rs.getInt("point_balance"), rs.getString("role"),
 						rs.getTimestamp("created_at"));
-				m.setPreferredCategoryId(rs.getInt("preferred_category_id")); // ← 추가
+				m.setPreferredCategoryId(rs.getInt("preferred_category_id"));
 				members.add(m);
 			}
 			return members;

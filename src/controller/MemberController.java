@@ -1,6 +1,7 @@
 package controller;
 
 import java.util.List;
+import java.util.Scanner;
 
 import exception.CafeKioskException;
 import exception.ValidationException;
@@ -8,11 +9,10 @@ import model.Member;
 import model.Order;
 import model.PointHistory;
 import model.OrderItem;
+import model.Menu;
 import service.MemberService;
 import view.EndView;
 import view.FailView;
-import model.Menu;
-import java.util.List;
 
 public class MemberController {
 	private final MemberService memberService;
@@ -42,51 +42,33 @@ public class MemberController {
 			FailView.fail(e.getMessage());
 			return null;
 		} catch (Exception e) {
-			// 기타 예상치 못한 오류 발생 시 사용자에게 노출하지 않고 로그만 남김
 			System.err.println("시스템 오류: " + e.getMessage());
 			return null;
 		}
 	}
 
 	public void showOrderHistory(Member member) {
-	    try {
-	        List<Order> orders = memberService.getOrderHistory(member);
-	        EndView.printOrders(orders);
-	    } catch (CafeKioskException e) {
-	        FailView.fail(e.getMessage());
-	    }
-	}
-
-	public void showPointHistory(Member member) {
-	    try {
-	        List<PointHistory> history = memberService.getPointHistory(member);
-	        EndView.printPointHistory(member, history);
-	    } catch (CafeKioskException e) {
-	        FailView.fail(e.getMessage());
-	    }
+		try {
+			List<Order> orders = memberService.getOrderHistory(member);
+			EndView.printOrders(orders);
+		} catch (CafeKioskException e) {
+			FailView.fail(e.getMessage());
+		}
 	}
 
 	public void showWishlist(Member member) {
 		try {
-			EndView.printWishlist(member, memberService.getWishlist(member));
+			List<model.Wishlist> wishlists = memberService.getWishlist(member);
+			EndView.printWishlist(member, wishlists);
 		} catch (CafeKioskException e) {
 			FailView.fail(e.getMessage());
 		}
 	}
 
-	public void addWishlist(Member member, long menuId) {
+	public void showPointHistory(Member member) {
 		try {
-			memberService.addWishlist(member, menuId);
-			EndView.success("찜 목록에 추가되었습니다.");
-		} catch (CafeKioskException e) {
-			FailView.fail(e.getMessage());
-		}
-	}
-
-	public void removeWishlist(long wishlistId) {
-		try {
-			memberService.removeWishlist(wishlistId);
-			EndView.success("찜이 삭제되었습니다.");
+			List<PointHistory> history = memberService.getPointHistory(member);
+			EndView.printPointHistory(member, history);
 		} catch (CafeKioskException e) {
 			FailView.fail(e.getMessage());
 		}
@@ -102,7 +84,7 @@ public class MemberController {
 			}
 
 			System.out.print("이 주문으로 바로 주문하시겠습니까? (Y/N): ");
-			String input = new java.util.Scanner(System.in).nextLine().trim();
+			String input = new Scanner(System.in).nextLine().trim();
 			if ("Y".equalsIgnoreCase(input)) {
 				return quickOrder.getItems();
 			}
@@ -135,6 +117,7 @@ public class MemberController {
 	public void updatePreferredCategory(Member member, int categoryId) {
 		try {
 			memberService.updatePreferredCategory(member.getMemberId(), categoryId);
+			member.setPreferredCategoryId(categoryId);
 			EndView.success("선호 카테고리가 변경되었습니다!");
 		} catch (CafeKioskException e) {
 			FailView.fail(e.getMessage());
