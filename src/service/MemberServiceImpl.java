@@ -17,6 +17,7 @@ import model.Menu;
 import repository.MenuRepository;
 import repository.MenuRepositoryImpl;
 import java.util.ArrayList;
+import util.PasswordUtil;
 
 public class MemberServiceImpl implements MemberService {
 	private final MemberRepository memberRepository;
@@ -65,7 +66,7 @@ public class MemberServiceImpl implements MemberService {
 					+ digitsOnly.substring(7);
 		}
 
-		Member member = memberRepository.login(normalizedPhone, password);
+		Member member = memberRepository.login(normalizedPhone, PasswordUtil.encrypt(password));
 		if (member == null) {
 			throw new BusinessRuleException("전화번호 또는 비밀번호가 일치하지 않습니다.");
 		}
@@ -84,7 +85,7 @@ public class MemberServiceImpl implements MemberService {
 			throw new ConflictException("이미 가입된 전화번호입니다.");
 		}
 
-		Member newMember = new Member(phone, password, age);
+		Member newMember = new Member(phone, PasswordUtil.encrypt(password), age);
 		boolean result = memberRepository.register(newMember);
 
 		if (!result) {
@@ -189,7 +190,7 @@ public class MemberServiceImpl implements MemberService {
 		if (memberRepository.isPhoneExists(phone)) {
 			throw new ConflictException("이미 가입된 전화번호입니다.");
 		}
-		Member member = new Member(phone, password, age);
+		Member member = new Member(phone, PasswordUtil.encrypt(password), age);
 		member.setPreferredCategoryId(preferredCategoryId);
 		boolean result = memberRepository.register(member);
 
@@ -209,7 +210,6 @@ public class MemberServiceImpl implements MemberService {
 
 		return true;
 	}
-
 
 	@Override
 	public void updatePreferredCategory(long memberId, int categoryId) {

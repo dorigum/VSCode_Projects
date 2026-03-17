@@ -41,25 +41,22 @@ public class MemberRepositoryImpl implements MemberRepository {
 	@Override
 	public List<PointHistory> getPointHistory(long memberId) {
 		List<PointHistory> historyList = new ArrayList<>();
-		
+
 		// 테이블 자동 생성 로직 (조회 시에도 보장)
-		String checkSql = "CREATE TABLE IF NOT EXISTS POINT_HISTORY (" +
-				"history_id INT AUTO_INCREMENT PRIMARY KEY, " +
-				"member_id BIGINT NOT NULL, " +
-				"amount INT NOT NULL, " +
-				"reason VARCHAR(255) NOT NULL, " +
-				"created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, " +
-				"FOREIGN KEY (member_id) REFERENCES MEMBER(member_id) ON DELETE CASCADE)";
-		
+		String checkSql = "CREATE TABLE IF NOT EXISTS POINT_HISTORY (" + "history_id INT AUTO_INCREMENT PRIMARY KEY, "
+				+ "member_id BIGINT NOT NULL, " + "amount INT NOT NULL, " + "reason VARCHAR(255) NOT NULL, "
+				+ "created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, "
+				+ "FOREIGN KEY (member_id) REFERENCES MEMBER(member_id) ON DELETE CASCADE)";
+
 		String sql = "SELECT * FROM POINT_HISTORY WHERE member_id = ? ORDER BY created_at DESC";
-		
-		try (Connection conn = DBUtil.getConnection(); 
-			 Statement stmt = conn.createStatement();
-			 PreparedStatement pstmt = conn.prepareStatement(sql)) {
-			
+
+		try (Connection conn = DBUtil.getConnection();
+				Statement stmt = conn.createStatement();
+				PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
 			// 1. 테이블 존재 여부 보장
 			stmt.execute(checkSql);
-			
+
 			// 2. 내역 조회
 			pstmt.setLong(1, memberId);
 			try (ResultSet rs = pstmt.executeQuery()) {
@@ -73,35 +70,36 @@ public class MemberRepositoryImpl implements MemberRepository {
 			throw new RepositoryException("포인트 내역 조회 중 오류가 발생했습니다.", e);
 		}
 	}
+
 // 로그인 - phone으로
-public Member login(String phone, String password) {
-	String sql = "SELECT member_id, phone, password, age, point_balance, role, created_at, preferred_category_id FROM MEMBER WHERE phone = ? AND password = BINARY ?";
-	try (Connection conn = DBUtil.getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
-		pstmt.setString(1, phone);
-		pstmt.setString(2, password);
-		try (ResultSet rs = pstmt.executeQuery()) {
-			if (rs.next()) {
-				long memberId = rs.getLong("member_id");
+	public Member login(String phone, String password) {
+		String sql = "SELECT member_id, phone, password, age, point_balance, role, created_at, preferred_category_id FROM MEMBER WHERE phone = ? AND password = ?";
+		try (Connection conn = DBUtil.getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
+			pstmt.setString(1, phone);
+			pstmt.setString(2, password);
+			try (ResultSet rs = pstmt.executeQuery()) {
+				if (rs.next()) {
+					long memberId = rs.getLong("member_id");
 
-				Member member = new Member(memberId, rs.getString("phone"), rs.getString("password"),
-						rs.getInt("age"), rs.getInt("point_balance"), rs.getString("role"),
-						rs.getTimestamp("created_at"));
+					Member member = new Member(memberId, rs.getString("phone"), rs.getString("password"),
+							rs.getInt("age"), rs.getInt("point_balance"), rs.getString("role"),
+							rs.getTimestamp("created_at"));
 
-				try {
-					member.setPreferredCategoryId(rs.getInt("preferred_category_id"));
-				} catch (SQLException ignored) {
-				}
+					try {
+						member.setPreferredCategoryId(rs.getInt("preferred_category_id"));
+					} catch (SQLException ignored) {
+					}
 
-				if (memberId > 0) {
-					return member;
+					if (memberId > 0) {
+						return member;
+					}
 				}
 			}
+		} catch (SQLException e) {
+			throw new RepositoryException("로그인 처리 중 오류가 발생했습니다.", e);
 		}
-	} catch (SQLException e) {
-		throw new RepositoryException("로그인 처리 중 오류가 발생했습니다.", e);
+		return null;
 	}
-	return null;
-}
 
 	// 회원가입
 	public boolean register(Member member) {
@@ -136,7 +134,7 @@ public Member login(String phone, String password) {
 	// 주문 내역 조회
 	public List<Order> getOrderHistory(long memberId) {
 		List<Order> orderList = new ArrayList<>();
-		
+
 		// 회원 정보 먼저 조회 (전화번호 가져오기용)
 		Member member = getMemberById(memberId);
 		String phone = (member != null) ? member.getPhone() : null;
@@ -147,9 +145,9 @@ public Member login(String phone, String password) {
 			pstmt.setLong(1, memberId);
 			try (ResultSet rs = pstmt.executeQuery()) {
 				while (rs.next()) {
-					Order order = new Order(rs.getLong("order_id"), rs.getLong("member_id"), phone, rs.getInt("total_amount"),
-							rs.getInt("point_used"), rs.getInt("point_earned"), rs.getString("status"),
-							rs.getTimestamp("order_date"));
+					Order order = new Order(rs.getLong("order_id"), rs.getLong("member_id"), phone,
+							rs.getInt("total_amount"), rs.getInt("point_used"), rs.getInt("point_earned"),
+							rs.getString("status"), rs.getTimestamp("order_date"));
 
 					// 2단계: 각 Order의 OrderItem 조회
 					String itemSql = "SELECT * FROM ORDER_ITEM WHERE order_id = ?";
