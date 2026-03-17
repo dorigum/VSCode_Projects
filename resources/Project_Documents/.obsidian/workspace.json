@@ -11,10 +11,14 @@
             "id": "8f5dd73b36ee93d7",
             "type": "leaf",
             "state": {
-              "type": "empty",
-              "state": {},
+              "type": "markdown",
+              "state": {
+                "file": "Project_Specification.md",
+                "mode": "source",
+                "source": false
+              },
               "icon": "lucide-file",
-              "title": "새 탭"
+              "title": "Project_Specification"
             }
           }
         ]
@@ -181,9 +185,9 @@
   },
   "active": "8f5dd73b36ee93d7",
   "lastOpenFiles": [
-    "팀플 작업 메모.md",
     "Pasted image 20260317094045.png",
     "2026-03-17.md",
+    "팀플 작업 메모.md",
     "2026-03-13.md",
     "카페 키오스크_관리자 기능 관리 명세서.md",
     "-.md",
