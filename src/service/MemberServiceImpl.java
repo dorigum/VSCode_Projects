@@ -94,8 +94,8 @@ public class MemberServiceImpl implements MemberService {
 
 		// 회원가입 성공 후 보너스 포인트 지급 (예: 1000P)
 		try {
-			// 방금 가입한 회원의 ID를 가져오기 위해 다시 조회
-			Member registered = memberRepository.login(phone, password);
+			// 방금 가입한 회원의 ID를 가져오기 위해 다시 조회 (암호화된 비밀번호 사용)
+			Member registered = memberRepository.login(phone, PasswordUtil.encrypt(password));
 			if (registered != null) {
 				updatePoint(registered.getMemberId(), 1000, "회원가입 축하 포인트");
 			}
@@ -200,7 +200,8 @@ public class MemberServiceImpl implements MemberService {
 
 		// 회원가입 성공 후 보너스 포인트 지급 (1000P)
 		try {
-			Member registered = memberRepository.login(phone, password);
+			// 방금 가입한 회원의 ID를 가져오기 위해 다시 조회 (암호화된 비밀번호 사용)
+			Member registered = memberRepository.login(phone, PasswordUtil.encrypt(password));
 			if (registered != null) {
 				updatePoint(registered.getMemberId(), 1000, "회원가입 축하 포인트");
 			}

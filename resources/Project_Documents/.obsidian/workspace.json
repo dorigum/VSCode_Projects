@@ -4,21 +4,21 @@
     "type": "split",
     "children": [
       {
-        "id": "145f392a295ab2c9",
+        "id": "0f390bead713307c",
         "type": "tabs",
         "children": [
           {
-            "id": "7eea5acf3d57e511",
+            "id": "8f5dd73b36ee93d7",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "2026-03-17.md",
+                "file": "Project_Specification.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "2026-03-17"
+              "title": "Project_Specification"
             }
           }
         ]
@@ -78,8 +78,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 200,
-    "collapsed": true
+    "width": 200
   },
   "right": {
     "id": "34731b9d3f9b1c74",
@@ -184,15 +183,15 @@
       "bases:새 베이스 생성하기": false
     }
   },
-  "active": "7eea5acf3d57e511",
+  "active": "8f5dd73b36ee93d7",
   "lastOpenFiles": [
     "Pasted image 20260317094045.png",
     "2026-03-17.md",
     "팀플 작업 메모.md",
+    "2026-03-13.md",
     "카페 키오스크_관리자 기능 관리 명세서.md",
     "-.md",
     "관리자 MVC 구조 상세 분석.md",
-    "Project_Specification.md",
-    "2026-03-13.md"
+    "Project_Specification.md"
   ]
 }
