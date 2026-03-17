@@ -140,7 +140,7 @@ public class MemberRepositoryImpl implements MemberRepository {
 		String phone = (member != null) ? member.getPhone() : null;
 
 		// 1단계: ORDERS 조회
-		String orderSql = "SELECT * FROM ORDERS WHERE member_id = ? ORDER BY order_date DESC";
+		String orderSql = "SELECT * FROM ORDERS WHERE member_id = ? ORDER BY order_date DESC LIMIT 5";
 		try (Connection conn = DBUtil.getConnection(); PreparedStatement pstmt = conn.prepareStatement(orderSql)) {
 			pstmt.setLong(1, memberId);
 			try (ResultSet rs = pstmt.executeQuery()) {
@@ -156,27 +156,24 @@ public class MemberRepositoryImpl implements MemberRepository {
 						List<OrderItem> items = new ArrayList<>();
 						try (ResultSet itemRs = itemPs.executeQuery()) {
 							while (itemRs.next()) {
-								OrderItem item = new OrderItem(itemRs.getLong("order_item_id"), itemRs.getLong("order_id"),
-										itemRs.getLong("menu_id"), itemRs.getInt("quantity"),
-										itemRs.getInt("unit_price"), itemRs.getString("menu_name_snapshot"),
+								OrderItem item = new OrderItem(itemRs.getLong("order_item_id"),
+										itemRs.getLong("order_id"), itemRs.getLong("menu_id"),
+										itemRs.getInt("quantity"), itemRs.getInt("unit_price"),
+										itemRs.getString("menu_name_snapshot"),
 										itemRs.getString("category_name_snapshot"));
-								
+
 								// 3단계: 각 OrderItem의 선택된 옵션 정보 조회 (추가된 로직)
-								String optionSql = "SELECT mo.* FROM ORDER_ITEM_OPTION oio " +
-								                   "JOIN MENU_OPTION mo ON oio.option_id = mo.option_id " +
-								                   "WHERE oio.order_item_id = ?";
+								String optionSql = "SELECT mo.* FROM ORDER_ITEM_OPTION oio "
+										+ "JOIN MENU_OPTION mo ON oio.option_id = mo.option_id "
+										+ "WHERE oio.order_item_id = ?";
 								try (PreparedStatement optPs = conn.prepareStatement(optionSql)) {
 									optPs.setLong(1, item.getOrderItemId());
 									List<model.MenuOption> options = new ArrayList<>();
 									try (ResultSet optRs = optPs.executeQuery()) {
 										while (optRs.next()) {
-											options.add(new model.MenuOption(
-												optRs.getLong("option_id"),
-												optRs.getLong("group_id"),
-												optRs.getString("option_name"),
-												optRs.getInt("extra_price"),
-												optRs.getInt("display_order")
-											));
+											options.add(new model.MenuOption(optRs.getLong("option_id"),
+													optRs.getLong("group_id"), optRs.getString("option_name"),
+													optRs.getInt("extra_price"), optRs.getInt("display_order")));
 										}
 									}
 									item.setOptions(options);
