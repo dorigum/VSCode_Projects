@@ -52,7 +52,7 @@ public class Menu {
 
     @Override
     public String toString() {
-        String availability = isAvailable ? "[판매중]" : "[품절 ]";
+        String availability = isAvailable ? "[판매중]" : "[품절]";
         String optionsInfo = "";
         if (optionGroups != null && !optionGroups.isEmpty()) {
             optionsInfo = " | 선택 가능한 옵션: " + optionGroups.stream()

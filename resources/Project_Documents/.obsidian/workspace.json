@@ -11,14 +11,10 @@
             "id": "8f5dd73b36ee93d7",
             "type": "leaf",
             "state": {
-              "type": "markdown",
-              "state": {
-                "file": "Project_Specification.md",
-                "mode": "source",
-                "source": false
-              },
+              "type": "empty",
+              "state": {},
               "icon": "lucide-file",
-              "title": "Project_Specification"
+              "title": "새 탭"
             }
           }
         ]
@@ -185,13 +181,15 @@
   },
   "active": "8f5dd73b36ee93d7",
   "lastOpenFiles": [
+    "AdminFlow.md",
+    "Presentation_Materials.md",
+    "Project_Specification.md",
     "Pasted image 20260317094045.png",
     "2026-03-17.md",
     "팀플 작업 메모.md",
     "2026-03-13.md",
     "카페 키오스크_관리자 기능 관리 명세서.md",
     "-.md",
-    "관리자 MVC 구조 상세 분석.md",
-    "Project_Specification.md"
+    "관리자 MVC 구조 상세 분석.md"
   ]
 }

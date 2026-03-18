@@ -164,7 +164,7 @@ public final class EndView {
 			System.out.printf("  %s 관리자님, 환영합니다.%n", member.getPhone());
 		} else {
 			System.out.printf("  환영합니다, %s님!%n", member.getPhone());
-			System.out.printf("  보유 포인트: %,d원%n", member.getPointBalance());
+			//System.out.printf("  보유 포인트: %,d원%n", member.getPointBalance());
 		}
 		System.out.println("===============================");
 	}
