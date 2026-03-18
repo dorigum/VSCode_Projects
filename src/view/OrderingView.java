@@ -322,10 +322,8 @@ public class OrderingView {
 	}
 
 	private void addMenuToCart(MenuController menuController, Menu selectedMenu, List<OrderItem> cart) {
-		System.out.println(selectedMenu);
 		List<OptionGroup> optionGroups = menuController.getOptionGroups(selectedMenu);
 		OptionSelection selection = selectMenuOptions(optionGroups);
-		System.out.println(selection);
 
 		int quantity = readPositiveQuantity("개수 선택 (0. 뒤로): ");
 		if (quantity == BACK) {
